@@ -1,4 +1,6 @@
 import type { WeatherData } from '../../types/dashboard';
+import type { AirQualityData } from '../../hooks/useAirQuality';
+import type { MoonPhaseData } from '../../utils/moonPhase';
 import { WeatherIcon } from './WeatherIcon';
 
 interface WeatherProps {
@@ -9,6 +11,8 @@ interface WeatherProps {
   daysToShow?: number;
   showFeelsLike?: boolean;
   showPrecipChance?: boolean;
+  airQuality?: AirQualityData | null;
+  moonPhase?: MoonPhaseData | null;
 }
 
 export function Weather({
@@ -19,6 +23,8 @@ export function Weather({
   daysToShow = 5,
   showFeelsLike = true,
   showPrecipChance = true,
+  airQuality,
+  moonPhase,
 }: WeatherProps) {
   if (loading) {
     return <div className="weather-widget loading">Loading weather...</div>;
@@ -49,6 +55,29 @@ export function Weather({
           </div>
         )}
         <div className="weather-condition">{data.current.condition}</div>
+
+        {(moonPhase || airQuality) && (
+          <div className="weather-extras">
+            {moonPhase && (
+              <span className="weather-extra-item">
+                <span className="extra-icon">{moonPhase.emoji}</span>
+                <span className="extra-label">{moonPhase.name}</span>
+              </span>
+            )}
+            {moonPhase && airQuality && <span className="extra-separator">·</span>}
+            {airQuality && (
+              <span className="weather-extra-item">
+                <span
+                  className="aqi-badge"
+                  style={{ backgroundColor: airQuality.color }}
+                >
+                  {airQuality.aqi}
+                </span>
+                <span className="extra-label">{airQuality.category}</span>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="weather-forecast">
