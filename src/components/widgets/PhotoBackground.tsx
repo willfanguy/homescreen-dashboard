@@ -24,15 +24,24 @@ export function PhotoBackground({
   useEffect(() => {
     if (photos.length <= 1) return;
 
+    const getRandomIndex = (current: number, total: number) => {
+      if (total <= 1) return 0;
+      let next;
+      do {
+        next = Math.floor(Math.random() * total);
+      } while (next === current);
+      return next;
+    };
+
     const interval = setInterval(() => {
       if (useTransitions) {
         setIsTransitioning(true);
         setTimeout(() => {
-          setCurrentIndex(prev => (prev + 1) % photos.length);
+          setCurrentIndex(prev => getRandomIndex(prev, photos.length));
           setIsTransitioning(false);
         }, 500);
       } else {
-        setCurrentIndex(prev => (prev + 1) % photos.length);
+        setCurrentIndex(prev => getRandomIndex(prev, photos.length));
       }
     }, rotateInterval * 1000);
 
