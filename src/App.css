@@ -1,0 +1,235 @@
+/* Dashboard Layout */
+.dashboard {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  font-family: 'IBM Plex Sans', 'Open Sans', sans-serif;
+  color: #fff;
+}
+
+.dashboard-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dashboard-left {
+  position: relative;
+  width: 30%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-right {
+  position: relative;
+  width: 30%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Gradient Overlays */
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.gradient-overlay.left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+}
+
+.gradient-overlay.right {
+  right: 0;
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
+}
+
+/* Photo Background */
+.photo-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.photo-background.transitioning {
+  opacity: 0;
+}
+
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.photo-vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.5);
+}
+
+/* Clock Widget */
+.clock-widget {
+  margin-bottom: 2rem;
+}
+
+.clock-time {
+  font-size: 4rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.clock-date {
+  font-size: 1.5rem;
+  font-weight: 300;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+}
+
+/* Calendar Widget */
+.calendar-widget {
+  flex: 1;
+  overflow: hidden;
+}
+
+.calendar-day {
+  margin-bottom: 1.5rem;
+}
+
+.calendar-day-header {
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-event {
+  padding: 0.5rem 0 0.5rem 0.75rem;
+  border-left: 3px solid #3f51b5;
+  margin-bottom: 0.5rem;
+}
+
+.event-time {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+.event-title {
+  font-size: 1rem;
+}
+
+.calendar-empty {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* Weather Widget */
+.weather-widget {
+  width: 100%;
+}
+
+.weather-current {
+  margin-bottom: 1.5rem;
+}
+
+.weather-temp {
+  font-size: 4rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.weather-feels-like {
+  font-size: 1rem;
+  opacity: 0.7;
+  margin-top: 0.25rem;
+}
+
+.weather-condition {
+  font-size: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.weather-forecast {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.forecast-day {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.forecast-day-name {
+  width: 3rem;
+  font-weight: 500;
+}
+
+.forecast-temps {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.forecast-high {
+  font-weight: 500;
+}
+
+.forecast-low {
+  opacity: 0.6;
+}
+
+.forecast-precip {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+/* Weather Alerts */
+.weather-alerts {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.weather-alert {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.weather-alert.minor {
+  background: rgba(255, 193, 7, 0.3);
+}
+
+.weather-alert.moderate {
+  background: rgba(255, 152, 0, 0.4);
+}
+
+.weather-alert.severe {
+  background: rgba(244, 67, 54, 0.4);
+}
+
+.weather-alert.extreme {
+  background: rgba(183, 28, 28, 0.5);
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.5;
+}
+
+.error {
+  color: #ff5252;
+}
