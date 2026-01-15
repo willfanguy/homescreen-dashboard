@@ -121,7 +121,7 @@
 }
 
 .calendar-day-header {
-  font-size: 1.5rem;
+  font-size: 1.875rem;
   font-weight: 500;
   opacity: 0.8;
   margin-bottom: 0.5rem;
@@ -137,14 +137,14 @@
 }
 
 .event-time {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   opacity: 0.7;
   flex-shrink: 0;
-  min-width: 6rem;
+  min-width: 7rem;
 }
 
 .event-title {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -182,7 +182,7 @@
 }
 
 .weather-feels-like {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   opacity: 0.7;
   margin-top: 0.25rem;
 }
@@ -193,7 +193,7 @@
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   margin-top: 0.5rem;
   opacity: 0.9;
 }
