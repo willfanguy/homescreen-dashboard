@@ -18,7 +18,7 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
     setError(null);
 
     try {
-      const enabledSources = sources.filter(s => s.enabled && s.icalUrl);
+      const enabledSources = sources.filter(s => s.enabled && (s.icalUrl || s.googleCalendarId));
 
       if (enabledSources.length === 0) {
         setEvents([]);
@@ -30,12 +30,32 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
 
       for (const source of enabledSources) {
         try {
-          // Use backend proxy to avoid CORS issues
-          const proxyUrl = `http://localhost:3001/api/calendar/ical?url=${encodeURIComponent(source.icalUrl!)}`;
-          const response = await fetch(proxyUrl);
-          const icalText = await response.text();
-          const parsed = parseICalEvents(icalText, source);
-          allEvents.push(...parsed);
+          if (source.icalUrl) {
+            // Use backend proxy for iCal feeds
+            const proxyUrl = `http://localhost:3001/api/calendar/ical?url=${encodeURIComponent(source.icalUrl)}`;
+            const response = await fetch(proxyUrl);
+            const icalText = await response.text();
+            const parsed = parseICalEvents(icalText, source);
+            allEvents.push(...parsed);
+          } else if (source.googleCalendarId) {
+            // Use Google Calendar API
+            const response = await fetch(
+              `http://localhost:3001/api/calendar/google/events/${encodeURIComponent(source.googleCalendarId)}`
+            );
+            if (response.ok) {
+              const events = await response.json();
+              const parsed = events.map((e: any) => ({
+                id: e.id,
+                title: e.summary,
+                start: new Date(e.start),
+                end: new Date(e.end),
+                allDay: e.allDay,
+                color: source.color,
+                calendarId: source.id,
+              }));
+              allEvents.push(...parsed);
+            }
+          }
         } catch (err) {
           console.error(`Failed to fetch calendar ${source.name}:`, err);
         }

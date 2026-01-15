@@ -23,6 +23,8 @@ export interface CalendarSource {
   color: string;
   enabled: boolean;
   icalUrl?: string;
+  // For Google Calendar API (when iCal URL not available)
+  googleCalendarId?: string;
 }
 
 export interface WeatherData {

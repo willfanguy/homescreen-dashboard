@@ -42,32 +42,31 @@ export const config: AppConfig = {
   },
 
   calendar: {
-    limit: 3,
+    limit: 15,
   },
 
-  // Calendar sources via iCal URLs (from work Google account)
-  // To get URL: Google Calendar > Settings > [Calendar] > "Secret address in iCal format"
+  // Calendar sources - mix of iCal URLs and Google Calendar API
   calendars: [
     {
       id: 'work',
       name: 'Work',
-      color: '#039be5',
+      color: '#003a9b',
       enabled: true,
-      icalUrl: '', // TODO: Add work calendar iCal URL
+      googleCalendarId: 'wfanguy@contractor.indeed.com',
     },
     {
       id: 'personal',
       name: 'Personal',
       color: '#3f51b5',
       enabled: true,
-      icalUrl: '', // TODO: Add personal calendar iCal URL (from work account view)
+      icalUrl: 'https://calendar.google.com/calendar/ical/will.fanguy%40gmail.com/private-1ba3cb07f1879b90fb537e2b07c456bf/basic.ics',
     },
     {
       id: 'shared',
       name: 'W+L',
       color: '#009688',
       enabled: true,
-      icalUrl: '', // TODO: Add shared calendar iCal URL
+      icalUrl: 'https://calendar.google.com/calendar/ical/henvmd02vmfsaeclloepv1fj8c%40group.calendar.google.com/private-d3725444ad9c88d486a9ad5c2064591b/basic.ics',
     },
   ],
 
