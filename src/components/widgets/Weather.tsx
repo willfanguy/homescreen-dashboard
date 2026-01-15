@@ -54,45 +54,45 @@ export function Weather({
             Feels like {Math.round(data.current.feelsLike)}{tempUnit}
           </div>
         )}
-        <div className="weather-condition">{data.current.condition}</div>
-
-        {(moonPhase || airQuality) && (
-          <div className="weather-extras">
-            {moonPhase && (
-              <span className="weather-extra-item">
-                <span className="extra-icon">{moonPhase.emoji}</span>
-                <span className="extra-label">{moonPhase.name}</span>
+        <div className="weather-condition-row">
+          {moonPhase && (
+            <span className="condition-item">
+              <span>{moonPhase.emoji}</span>
+              <span>{moonPhase.name}</span>
+            </span>
+          )}
+          {moonPhase && airQuality && <span className="condition-separator">·</span>}
+          {airQuality && (
+            <span className="condition-item">
+              <span
+                className="aqi-badge-small"
+                style={{ backgroundColor: airQuality.color }}
+              >
+                {airQuality.aqi}
               </span>
-            )}
-            {moonPhase && airQuality && <span className="extra-separator">·</span>}
-            {airQuality && (
-              <span className="weather-extra-item">
-                <span
-                  className="aqi-badge"
-                  style={{ backgroundColor: airQuality.color }}
-                >
-                  {airQuality.aqi}
-                </span>
-                <span className="extra-label">{airQuality.category}</span>
-              </span>
-            )}
-          </div>
-        )}
+              <span>{airQuality.category}</span>
+            </span>
+          )}
+          {(moonPhase || airQuality) && <span className="condition-separator">·</span>}
+          <span>{data.current.condition}</span>
+        </div>
       </div>
 
       <div className="weather-forecast">
         {data.forecast.slice(0, daysToShow).map((day, index) => (
           <div key={index} className="forecast-day">
-            <div className="forecast-day-name">
-              {day.date.toLocaleDateString('en-US', { weekday: 'short' })}
-            </div>
-            <WeatherIcon code={day.weatherCode} size={40} className="forecast-icon" />
-            <div className="forecast-temps">
-              <span className="forecast-high">{Math.round(day.high)}°</span>
-              <span className="forecast-low">{Math.round(day.low)}°</span>
+            <div className="forecast-day-main">
+              <div className="forecast-day-name">
+                {day.date.toLocaleDateString('en-US', { weekday: 'short' })}
+              </div>
+              <WeatherIcon code={day.weatherCode} size={40} className="forecast-icon" />
+              <div className="forecast-temps">
+                <span className="forecast-high">{Math.round(day.high)}°</span>
+                <span className="forecast-low">{Math.round(day.low)}°</span>
+              </div>
             </div>
             {showPrecipChance && day.precipChance > 0 && (
-              <div className="forecast-precip">{day.precipChance}%</div>
+              <div className="forecast-precip">{day.precipChance}% chance of rain</div>
             )}
           </div>
         ))}
