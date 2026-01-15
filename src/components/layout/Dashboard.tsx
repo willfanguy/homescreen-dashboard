@@ -12,8 +12,8 @@ import { getMoonPhase, type MoonPhaseData } from '../../utils/moonPhase';
 import { config } from '../../config';
 import type { CalendarEvent, WeatherAlert } from '../../types/dashboard';
 
-// Toggle this to show test data for trash and weather alerts
-const SHOW_TEST_DATA = false;
+// Toggle test data via URL param: ?testData=true
+const SHOW_TEST_DATA = new URLSearchParams(window.location.search).get('testData') === 'true';
 
 export function Dashboard() {
   const weather = useWeather(config.weather);
