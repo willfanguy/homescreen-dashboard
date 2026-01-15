@@ -36,9 +36,12 @@ export interface WeatherData {
     weatherCode: number;
     humidity: number;
     windSpeed: number;
+    uvIndex: number;
   };
   forecast: DayForecast[];
   alerts: WeatherAlert[];
+  sunrise: Date;
+  sunset: Date;
 }
 
 export interface DayForecast {

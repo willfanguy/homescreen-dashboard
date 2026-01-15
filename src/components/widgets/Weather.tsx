@@ -74,7 +74,28 @@ export function Weather({
             </span>
           )}
           {(moonPhase || airQuality) && <span className="condition-separator">·</span>}
+          <span className="condition-item">
+            <span
+              className="uv-badge-small"
+              style={{ backgroundColor: getUvColor(data.current.uvIndex) }}
+            >
+              {Math.round(data.current.uvIndex)}
+            </span>
+            <span>UV</span>
+          </span>
+          <span className="condition-separator">·</span>
           <span>{data.current.condition}</span>
+        </div>
+        <div className="weather-sun-row">
+          <span className="sun-item">
+            <span>☀↑</span>
+            <span>{formatTime(data.sunrise)}</span>
+          </span>
+          <span className="condition-separator">·</span>
+          <span className="sun-item">
+            <span>☀↓</span>
+            <span>{formatTime(data.sunset)}</span>
+          </span>
         </div>
       </div>
 
@@ -110,4 +131,19 @@ export function Weather({
       )}
     </div>
   );
+}
+
+function getUvColor(uvIndex: number): string {
+  if (uvIndex < 3) return '#4caf50'; // Low - green
+  if (uvIndex < 6) return '#ffeb3b'; // Moderate - yellow
+  if (uvIndex < 8) return '#ff9800'; // High - orange
+  if (uvIndex < 11) return '#f44336'; // Very high - red
+  return '#9c27b0'; // Extreme - purple
+}
+
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }

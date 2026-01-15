@@ -33,8 +33,8 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
       const params = new URLSearchParams({
         latitude: config.lat.toString(),
         longitude: config.lon.toString(),
-        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m',
-        daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index',
+        daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset',
         temperature_unit: tempUnit,
         wind_speed_unit: windUnit,
         timezone: 'auto',
@@ -57,6 +57,7 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
           weatherCode: json.current.weather_code,
           humidity: json.current.relative_humidity_2m,
           windSpeed: json.current.wind_speed_10m,
+          uvIndex: json.current.uv_index,
         },
         forecast: json.daily.time.map((date: string, i: number) => ({
           date: new Date(date),
@@ -68,6 +69,8 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
           precipChance: json.daily.precipitation_probability_max[i] || 0,
         })),
         alerts: [], // Open-Meteo doesn't provide alerts in free tier
+        sunrise: new Date(json.daily.sunrise[0]),
+        sunset: new Date(json.daily.sunset[0]),
       };
 
       setData(weatherData);
