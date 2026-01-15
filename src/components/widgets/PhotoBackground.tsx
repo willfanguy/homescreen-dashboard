@@ -55,15 +55,29 @@ export function PhotoBackground({
   // Ensure index is within bounds (photos array may have changed)
   const safeIndex = currentIndex < photos.length ? currentIndex : 0;
   const currentPhoto = photos[safeIndex];
+  const isPortrait = currentPhoto.height > currentPhoto.width;
 
   return (
-    <div
-      className={`photo-background ${isTransitioning ? 'transitioning' : ''}`}
-      style={{
-        backgroundImage: `url(${currentPhoto.url})`,
-        filter: blur ? 'blur(8px)' : 'none',
-      }}
-    >
+    <div className={`photo-background ${isTransitioning ? 'transitioning' : ''}`}>
+      {/* Blurred background fill layer */}
+      <div
+        className="photo-background-fill"
+        style={{
+          backgroundImage: `url(${currentPhoto.url})`,
+          filter: isPortrait ? 'blur(30px)' : (blur ? 'blur(8px)' : 'none'),
+          backgroundSize: 'cover',
+          transform: isPortrait ? 'scale(1.1)' : 'none',
+        }}
+      />
+      {/* Main image layer */}
+      <div
+        className="photo-background-main"
+        style={{
+          backgroundImage: `url(${currentPhoto.url})`,
+          backgroundSize: isPortrait ? 'contain' : 'cover',
+          filter: (!isPortrait && blur) ? 'blur(8px)' : 'none',
+        }}
+      />
       <div
         className="photo-overlay"
         style={{

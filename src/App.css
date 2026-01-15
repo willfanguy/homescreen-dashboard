@@ -59,13 +59,27 @@
 .photo-background {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
   transition: opacity 0.5s ease-in-out;
 }
 
 .photo-background.transitioning {
   opacity: 0;
+}
+
+.photo-background-fill,
+.photo-background-main {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.photo-background-fill {
+  z-index: 0;
+}
+
+.photo-background-main {
+  z-index: 1;
 }
 
 .photo-overlay {
