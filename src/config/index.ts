@@ -68,6 +68,13 @@ export const config: AppConfig = {
       enabled: true,
       icalUrl: 'https://calendar.google.com/calendar/ical/henvmd02vmfsaeclloepv1fj8c%40group.calendar.google.com/private-d3725444ad9c88d486a9ad5c2064591b/basic.ics',
     },
+    {
+      id: 'trash',
+      name: 'Trash & Recycling',
+      color: '#795548',
+      enabled: true,
+      icalUrl: 'https://recollect.a.ssl.fastly.net/api/places/98FC9CCA-5910-11E8-B1B1-B8DF4FF8365D/services/323/events.en-US.ics?client_id=1049768E-DF21-11EF-9183-CFFC2C1B26CC',
+    },
   ],
 
   weather: {

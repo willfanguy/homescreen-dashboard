@@ -1,16 +1,84 @@
+import { useState, useEffect, useMemo } from 'react';
 import { Clock } from '../widgets/Clock';
 import { Calendar } from '../widgets/Calendar';
 import { Weather } from '../widgets/Weather';
 import { PhotoBackground } from '../widgets/PhotoBackground';
+import { TrashReminder } from '../widgets/TrashReminder';
 import { useWeather } from '../../hooks/useWeather';
 import { useCalendar } from '../../hooks/useCalendar';
 import { usePhotos } from '../../hooks/usePhotos';
+import { useAirQuality } from '../../hooks/useAirQuality';
+import { getMoonPhase, type MoonPhaseData } from '../../utils/moonPhase';
 import { config } from '../../config';
+import type { CalendarEvent, WeatherAlert } from '../../types/dashboard';
+
+// Toggle this to show test data for trash and weather alerts
+const SHOW_TEST_DATA = false;
 
 export function Dashboard() {
   const weather = useWeather(config.weather);
   const calendar = useCalendar(config.calendars);
   const photos = usePhotos({ albumToken: config.photos.albumToken });
+  const airQuality = useAirQuality({ lat: config.weather.lat, lon: config.weather.lon });
+  const [moonPhase, setMoonPhase] = useState<MoonPhaseData>(() => getMoonPhase());
+
+  // Update moon phase at midnight
+  useEffect(() => {
+    const updateMoon = () => setMoonPhase(getMoonPhase());
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+
+    const timeout = setTimeout(() => {
+      updateMoon();
+      const interval = setInterval(updateMoon, 24 * 60 * 60 * 1000);
+      return () => clearInterval(interval);
+    }, msUntilMidnight);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  // Test data for development
+  const testTrashEvents: CalendarEvent[] = useMemo(() => {
+    if (!SHOW_TEST_DATA) return [];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return [{
+      id: 'test-trash',
+      title: 'Recycling, trash, and composting',
+      start: tomorrow,
+      end: tomorrow,
+      allDay: true,
+      color: '#795548',
+      calendarId: 'trash',
+    }];
+  }, []);
+
+  const testAlerts: WeatherAlert[] = useMemo(() => {
+    if (!SHOW_TEST_DATA) return [];
+    const now = new Date();
+    const later = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+    return [{
+      title: 'Severe Thunderstorm Warning',
+      description: 'Severe thunderstorms expected with damaging winds and large hail.',
+      severity: 'severe',
+      start: now,
+      end: later,
+    }];
+  }, []);
+
+  // Merge test data with real data
+  const allTrashEvents = SHOW_TEST_DATA ? [...calendar.events, ...testTrashEvents] : calendar.events;
+  const weatherWithAlerts = useMemo(() => {
+    if (!weather.data || !SHOW_TEST_DATA) return weather.data;
+    return {
+      ...weather.data,
+      alerts: [...weather.data.alerts, ...testAlerts],
+    };
+  }, [weather.data, testAlerts]);
 
   return (
     <div className="dashboard">
@@ -42,20 +110,26 @@ export function Dashboard() {
             loading={calendar.loading}
             error={calendar.error}
             limit={config.calendar.limit}
+            excludeCalendarIds={['trash']}
           />
         </div>
 
         <div className="dashboard-right">
           <div className="gradient-overlay right" />
           <Weather
-            data={weather.data}
+            data={weatherWithAlerts}
             loading={weather.loading}
             error={weather.error}
             units={config.weather.units}
             daysToShow={config.weather.daysToShow}
             showFeelsLike={config.weather.showFeelsLike}
             showPrecipChance={config.weather.showPrecipChance}
+            airQuality={airQuality.data}
+            moonPhase={moonPhase}
           />
+          <div className="dashboard-right-bottom">
+            <TrashReminder events={allTrashEvents} />
+          </div>
         </div>
       </div>
     </div>

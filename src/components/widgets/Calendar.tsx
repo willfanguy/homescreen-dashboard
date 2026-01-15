@@ -7,6 +7,7 @@ interface CalendarProps {
   limit?: number;
   showEndTime?: boolean;
   dateFormat?: string;
+  excludeCalendarIds?: string[];
 }
 
 export function Calendar({
@@ -15,6 +16,7 @@ export function Calendar({
   error,
   limit = 3,
   showEndTime = false,
+  excludeCalendarIds = [],
 }: CalendarProps) {
   if (loading) {
     return <div className="calendar-widget loading">Loading calendar...</div>;
@@ -26,6 +28,7 @@ export function Calendar({
 
   const upcomingEvents = events
     .filter(event => event.start >= new Date())
+    .filter(event => !excludeCalendarIds.includes(event.calendarId))
     .sort((a, b) => a.start.getTime() - b.start.getTime())
     .slice(0, limit);
 
