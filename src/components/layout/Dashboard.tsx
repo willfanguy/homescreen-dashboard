@@ -8,6 +8,7 @@ import { useWeather } from '../../hooks/useWeather';
 import { useCalendar } from '../../hooks/useCalendar';
 import { usePhotos } from '../../hooks/usePhotos';
 import { useAirQuality } from '../../hooks/useAirQuality';
+import { useNWSAlerts } from '../../hooks/useNWSAlerts';
 import { getMoonPhase, type MoonPhaseData } from '../../utils/moonPhase';
 import { config } from '../../config';
 import type { CalendarEvent, WeatherAlert } from '../../types/dashboard';
@@ -20,6 +21,7 @@ export function Dashboard() {
   const calendar = useCalendar(config.calendars);
   const photos = usePhotos({ albumToken: config.photos.albumToken });
   const airQuality = useAirQuality({ lat: config.weather.lat, lon: config.weather.lon });
+  const nwsAlerts = useNWSAlerts({ lat: config.weather.lat, lon: config.weather.lon });
   const [moonPhase, setMoonPhase] = useState<MoonPhaseData>(() => getMoonPhase());
 
   // Update moon phase at midnight
@@ -74,15 +76,22 @@ export function Dashboard() {
     }];
   }, []);
 
-  // Merge test data with real data
+  // Merge test data and NWS alerts with weather data
   const allTrashEvents = SHOW_TEST_DATA ? [...calendar.events, ...testTrashEvents] : calendar.events;
   const weatherWithAlerts = useMemo(() => {
-    if (!weather.data || !SHOW_TEST_DATA) return weather.data;
+    if (!weather.data) return weather.data;
+
+    // Combine NWS alerts with any test alerts
+    const allAlerts = [
+      ...nwsAlerts.alerts,
+      ...(SHOW_TEST_DATA ? testAlerts : []),
+    ];
+
     return {
       ...weather.data,
-      alerts: [...weather.data.alerts, ...testAlerts],
+      alerts: allAlerts,
     };
-  }, [weather.data, testAlerts]);
+  }, [weather.data, nwsAlerts.alerts, testAlerts]);
 
   return (
     <div className="dashboard">
