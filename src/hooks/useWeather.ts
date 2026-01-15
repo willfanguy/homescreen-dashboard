@@ -54,6 +54,7 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
           feelsLike: json.current.apparent_temperature,
           condition: getWeatherCondition(json.current.weather_code),
           icon: getWeatherIcon(json.current.weather_code),
+          weatherCode: json.current.weather_code,
           humidity: json.current.relative_humidity_2m,
           windSpeed: json.current.wind_speed_10m,
         },
@@ -63,6 +64,7 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
           low: json.daily.temperature_2m_min[i],
           condition: getWeatherCondition(json.daily.weather_code[i]),
           icon: getWeatherIcon(json.daily.weather_code[i]),
+          weatherCode: json.daily.weather_code[i],
           precipChance: json.daily.precipitation_probability_max[i] || 0,
         })),
         alerts: [], // Open-Meteo doesn't provide alerts in free tier

@@ -4,14 +4,14 @@ interface ClockProps {
   timezone: string;
   showSeconds?: boolean;
   showAmPm?: boolean;
-  dateFormat?: string;
+  use24Hour?: boolean;
 }
 
 export function Clock({
   timezone,
   showSeconds = true,
-  showAmPm = false,
-  // dateFormat reserved for custom formatting - using Intl for now
+  showAmPm = true,
+  use24Hour = false,
 }: ClockProps) {
   const [time, setTime] = useState(new Date());
 
@@ -25,12 +25,17 @@ export function Clock({
       timeZone: timezone,
       hour: 'numeric',
       minute: '2-digit',
-      hour12: !showAmPm ? false : true,
+      hour12: !use24Hour,
     };
     if (showSeconds) {
       options.second = '2-digit';
     }
-    return time.toLocaleTimeString('en-US', options);
+    let timeStr = time.toLocaleTimeString('en-US', options);
+    if (!showAmPm && !use24Hour) {
+      // Remove AM/PM if not wanted
+      timeStr = timeStr.replace(/\s?(AM|PM)$/i, '');
+    }
+    return timeStr;
   };
 
   const formatDate = () => {

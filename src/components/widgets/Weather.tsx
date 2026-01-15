@@ -1,4 +1,5 @@
 import type { WeatherData } from '../../types/dashboard';
+import { WeatherIcon } from './WeatherIcon';
 
 interface WeatherProps {
   data: WeatherData | null;
@@ -36,8 +37,11 @@ export function Weather({
   return (
     <div className="weather-widget">
       <div className="weather-current">
-        <div className="weather-temp">
-          {Math.round(data.current.temp)}{tempUnit}
+        <div className="weather-current-main">
+          <WeatherIcon code={data.current.weatherCode} size={64} className="weather-icon-current" />
+          <div className="weather-temp">
+            {Math.round(data.current.temp)}{tempUnit}
+          </div>
         </div>
         {showFeelsLike && (
           <div className="weather-feels-like">
@@ -53,6 +57,7 @@ export function Weather({
             <div className="forecast-day-name">
               {day.date.toLocaleDateString('en-US', { weekday: 'short' })}
             </div>
+            <WeatherIcon code={day.weatherCode} size={40} className="forecast-icon" />
             <div className="forecast-temps">
               <span className="forecast-high">{Math.round(day.high)}°</span>
               <span className="forecast-low">{Math.round(day.low)}°</span>
