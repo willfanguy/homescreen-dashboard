@@ -208,7 +208,8 @@
   opacity: 0.4;
 }
 
-.aqi-badge-small {
+.aqi-badge-small,
+.uv-badge-small {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -217,6 +218,22 @@
   font-size: 0.75rem;
   font-weight: 600;
   color: #000;
+}
+
+.weather-sun-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  opacity: 0.9;
+}
+
+.sun-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .weather-forecast {
