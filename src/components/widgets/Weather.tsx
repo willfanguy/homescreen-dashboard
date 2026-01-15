@@ -102,6 +102,7 @@ export function Weather({
         <div className="weather-alerts">
           {data.alerts.map((alert, index) => (
             <div key={index} className={`weather-alert ${alert.severity}`}>
+              {(alert.severity === 'severe' || alert.severity === 'extreme') && '⚠️ '}
               {alert.title}
             </div>
           ))}
