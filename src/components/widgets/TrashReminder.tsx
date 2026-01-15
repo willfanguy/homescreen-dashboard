@@ -28,7 +28,7 @@ export function TrashReminder({ events }: TrashReminderProps) {
       </div>
       <div className="trash-types">
         {nextPickup.types.map((type) => (
-          <span key={type} className={`trash-type ${type.toLowerCase()}`}>
+          <span key={type} className={`trash-type ${type.toLowerCase().replace(/\s+/g, '-')}`}>
             {getTypeIcon(type)} {type}
           </span>
         ))}

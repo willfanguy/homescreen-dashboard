@@ -52,7 +52,9 @@ export function PhotoBackground({
     return <div className="photo-background empty" />;
   }
 
-  const currentPhoto = photos[currentIndex];
+  // Ensure index is within bounds (photos array may have changed)
+  const safeIndex = currentIndex < photos.length ? currentIndex : 0;
+  const currentPhoto = photos[safeIndex];
 
   return (
     <div

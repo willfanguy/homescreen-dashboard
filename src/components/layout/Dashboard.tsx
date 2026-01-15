@@ -13,7 +13,7 @@ import { config } from '../../config';
 import type { CalendarEvent, WeatherAlert } from '../../types/dashboard';
 
 // Toggle this to show test data for trash and weather alerts
-const SHOW_TEST_DATA = true;
+const SHOW_TEST_DATA = false;
 
 export function Dashboard() {
   const weather = useWeather(config.weather);
@@ -31,13 +31,17 @@ export function Dashboard() {
     tomorrow.setHours(0, 0, 0, 0);
     const msUntilMidnight = tomorrow.getTime() - now.getTime();
 
-    const timeout = setTimeout(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const timeoutId = setTimeout(() => {
       updateMoon();
-      const interval = setInterval(updateMoon, 24 * 60 * 60 * 1000);
-      return () => clearInterval(interval);
+      intervalId = setInterval(updateMoon, 24 * 60 * 60 * 1000);
     }, msUntilMidnight);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
 
   // Test data for development

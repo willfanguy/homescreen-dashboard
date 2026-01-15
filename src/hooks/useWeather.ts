@@ -57,7 +57,7 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
           weatherCode: json.current.weather_code,
           humidity: json.current.relative_humidity_2m,
           windSpeed: json.current.wind_speed_10m,
-          uvIndex: json.current.uv_index,
+          uvIndex: json.current.uv_index ?? 0,
         },
         forecast: json.daily.time.map((date: string, i: number) => ({
           date: new Date(date),
