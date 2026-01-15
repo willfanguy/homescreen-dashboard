@@ -20,7 +20,7 @@
 .dashboard-left {
   position: relative;
   width: 30%;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem 2rem 0 2rem;
   display: flex;
   flex-direction: column;
 }
