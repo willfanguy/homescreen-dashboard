@@ -31,6 +31,7 @@ export interface WeatherData {
     feelsLike: number;
     condition: string;
     icon: string;
+    weatherCode: number;
     humidity: number;
     windSpeed: number;
   };
@@ -44,6 +45,7 @@ export interface DayForecast {
   low: number;
   condition: string;
   icon: string;
+  weatherCode: number;
   precipChance: number;
 }
 

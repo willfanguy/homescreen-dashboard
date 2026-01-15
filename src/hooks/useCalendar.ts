@@ -30,12 +30,9 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
 
       for (const source of enabledSources) {
         try {
-          // Note: This requires a CORS proxy for browser-based fetching
-          // In production, you'd either:
-          // 1. Use a backend proxy
-          // 2. Use Google Calendar API directly
-          // 3. Run a local server on the Pi that fetches the iCal data
-          const response = await fetch(source.icalUrl!);
+          // Use backend proxy to avoid CORS issues
+          const proxyUrl = `http://localhost:3001/api/calendar/ical?url=${encodeURIComponent(source.icalUrl!)}`;
+          const response = await fetch(proxyUrl);
           const icalText = await response.text();
           const parsed = parseICalEvents(icalText, source);
           allEvents.push(...parsed);

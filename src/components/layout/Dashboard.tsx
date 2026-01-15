@@ -10,7 +10,7 @@ import { config } from '../../config';
 export function Dashboard() {
   const weather = useWeather(config.weather);
   const calendar = useCalendar(config.calendars);
-  const photos = usePhotos(config.photos);
+  const photos = usePhotos({ albumToken: config.photos.albumToken });
 
   return (
     <div className="dashboard">
@@ -22,6 +22,12 @@ export function Dashboard() {
         vignette={config.photos.vignette}
       />
 
+      {photos.error && (
+        <div className="auth-prompt">
+          <p>Photo error: {photos.error}</p>
+        </div>
+      )}
+
       <div className="dashboard-content">
         <div className="dashboard-left">
           <div className="gradient-overlay left" />
@@ -29,6 +35,7 @@ export function Dashboard() {
             timezone={config.timezone}
             showSeconds={config.clock.showSeconds}
             showAmPm={config.clock.showAmPm}
+            use24Hour={config.clock.use24Hour}
           />
           <Calendar
             events={calendar.events}

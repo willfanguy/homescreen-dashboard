@@ -1,15 +1,17 @@
-import type { CalendarSource, PhotoSource } from '../types/dashboard';
+import type { CalendarSource } from '../types/dashboard';
 
 export interface AppConfig {
   timezone: string;
   clock: {
     showSeconds: boolean;
     showAmPm: boolean;
+    use24Hour: boolean;
   };
   calendar: {
     limit: number;
-    sources: CalendarSource[];
   };
+  // Calendar sources use iCal URLs - can be from any Google account
+  // Work account already has personal calendars merged
   calendars: CalendarSource[];
   weather: {
     lat: number;
@@ -19,7 +21,10 @@ export interface AppConfig {
     showFeelsLike: boolean;
     showPrecipChance: boolean;
   };
-  photos: PhotoSource & {
+  // iCloud Shared Album config
+  // Album token is the ID from the shared album URL: icloud.com/sharedalbum/#<token>
+  photos: {
+    albumToken: string;
     rotateInterval: number;
     brightness: number;
     blur: boolean;
@@ -32,30 +37,37 @@ export const config: AppConfig = {
 
   clock: {
     showSeconds: true,
-    showAmPm: false,
+    showAmPm: true,
+    use24Hour: false,
   },
 
   calendar: {
     limit: 3,
-    sources: [],
   },
 
-  // Calendar sources - add your iCal URLs here
+  // Calendar sources via iCal URLs (from work Google account)
+  // To get URL: Google Calendar > Settings > [Calendar] > "Secret address in iCal format"
   calendars: [
+    {
+      id: 'work',
+      name: 'Work',
+      color: '#039be5',
+      enabled: true,
+      icalUrl: '', // TODO: Add work calendar iCal URL
+    },
     {
       id: 'personal',
       name: 'Personal',
       color: '#3f51b5',
       enabled: true,
-      // To get iCal URL: Google Calendar > Settings > Calendar > Secret address in iCal format
-      icalUrl: '', // TODO: Add your calendar URL
+      icalUrl: '', // TODO: Add personal calendar iCal URL (from work account view)
     },
     {
       id: 'shared',
-      name: 'Shared',
+      name: 'W+L',
       color: '#009688',
       enabled: true,
-      icalUrl: '', // TODO: Add your calendar URL
+      icalUrl: '', // TODO: Add shared calendar iCal URL
     },
   ],
 
@@ -69,13 +81,13 @@ export const config: AppConfig = {
     showPrecipChance: true,
   },
 
+  // iCloud Shared Album
+  // Album token from shared album URL: icloud.com/sharedalbum/#B0n5ON9t3syvwZ
   photos: {
-    type: 'icloud',
-    albumId: 'B0n5ON9t3syvwZ',
-    albumUrl: 'https://www.icloud.com/sharedalbum/#B0n5ON9t3syvwZ',
+    albumToken: 'B0n5ON9t3syvwZ',
     rotateInterval: 300, // 5 minutes
-    brightness: 0.3,
-    blur: true,
+    brightness: 0.6,
+    blur: false,
     vignette: true,
   },
 };
