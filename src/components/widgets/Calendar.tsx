@@ -87,8 +87,8 @@ export function Calendar({
               className="calendar-event"
               style={{ borderLeftColor: event.color }}
             >
-              <div className="event-time">{formatEventTime(event)}</div>
-              <div className="event-title">{event.title}</div>
+              <span className="event-time">{formatEventTime(event)}</span>
+              <span className="event-title">{event.title}</span>
             </div>
           ))}
         </div>

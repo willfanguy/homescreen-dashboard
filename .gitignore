@@ -1,3 +1,7 @@
+# Credentials and tokens (keep these secret!)
+server/*-credentials.json
+server/*-token.json
+
 # Logs
 logs
 *.log
