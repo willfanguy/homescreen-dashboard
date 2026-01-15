@@ -13,7 +13,7 @@ import { config } from '../../config';
 import type { CalendarEvent, WeatherAlert } from '../../types/dashboard';
 
 // Toggle this to show test data for trash and weather alerts
-const SHOW_TEST_DATA = true;
+const SHOW_TEST_DATA = false;
 
 export function Dashboard() {
   const weather = useWeather(config.weather);

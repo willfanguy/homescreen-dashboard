@@ -23,7 +23,7 @@ export function TrashReminder({ events }: TrashReminderProps) {
   return (
     <div className="trash-reminder">
       <div className="trash-header">
-        <span className="trash-icon">▣</span>
+        <span className="trash-icon">🗑️</span>
         <span className="trash-day">{dayLabel}</span>
       </div>
       <div className="trash-types">
@@ -122,14 +122,14 @@ function getDayLabel(daysUntil: number, date: Date): string {
 function getTypeIcon(type: string): string {
   switch (type.toLowerCase()) {
     case 'recycling':
-      return '♻';
+      return '♻️';
     case 'trash':
-      return '▪';
+      return '🗑️';
     case 'compost':
-      return '◉';
+      return '🌱';
     case 'yard waste':
-      return '❧';
+      return '🍂';
     default:
-      return '•';
+      return '📦';
   }
 }
