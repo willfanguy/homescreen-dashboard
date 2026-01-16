@@ -44,6 +44,16 @@
   text-align: center;
 }
 
+.dashboard-bottom-center {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+}
+
 /* Next Event Countdown Widget */
 .next-event-countdown {
   background: rgba(0, 0, 0, 0.4);
@@ -596,4 +606,58 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Sonos Now Playing Widget */
+.sonos-now-playing {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 0.75rem;
+  max-width: 400px;
+}
+
+.sonos-album-art {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sonos-track-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.sonos-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sonos-artist {
+  font-size: 1rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sonos-room {
+  font-size: 0.875rem;
+  opacity: 0.6;
+}
+
+.sonos-paused-indicator {
+  opacity: 0.8;
 }

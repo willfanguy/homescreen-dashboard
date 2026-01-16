@@ -8,28 +8,51 @@ Master tracking document for all planned features. Small steps, nothing lost.
 
 These need to happen before certain features can be built.
 
-### Homebridge: Add Aqara Integration
-- [ ] Identify which Aqara hub model is in use
-- [ ] Research appropriate Homebridge plugin (`homebridge-aqara`, `homebridge-mi-aqara`, or hub-specific)
-- [ ] Install and configure plugin in Homebridge
-- [ ] Verify sensors appear in Homebridge API (`/api/accessories`)
-- [ ] Document which sensors are available and their accessory IDs
+### Homebridge: API-Only Setup
 
-**Unlocks:** Office Vitality Widget, Security Status Bar (contact sensors)
+Homebridge will serve as a **dedicated API layer** for the dashboard, completely separate from HomeKit. Native HomeKit integrations (Ring, TP-Link, etc.) stay as-is. Homebridge plugins run as **child bridges that are NOT paired to HomeKit** to avoid duplicates.
 
-### Homebridge: Enable API Access
+#### Enable API Access
 - [ ] Confirm Homebridge UI is accessible at `http://<server>:8581`
 - [ ] Verify auth mode (currently `"auth": "none"` - good for local API access)
 - [ ] Test API endpoint: `curl http://<server>:8581/api/accessories`
-- [ ] Document API response structure for Ring and TP-Link devices
 
-**Unlocks:** All Homebridge-based widgets
+#### Add Aqara Plugin (Child Bridge, Unpaired)
+- [ ] Identify which Aqara hub model is in use
+- [ ] Install appropriate Homebridge plugin (`homebridge-aqara`, `homebridge-mi-aqara`, or hub-specific)
+- [ ] Enable "Child Bridge" mode in plugin settings
+- [ ] Configure plugin with hub credentials
+- [ ] **Do NOT pair the child bridge to HomeKit**
+- [ ] Verify sensors appear in Homebridge API
+- [ ] Document available sensors and accessory IDs (temp, humidity, contact)
 
-### Sonos: Deploy HTTP API
-- [ ] Deploy `node-sonos-http-api` (Docker recommended)
-- [ ] Verify it discovers Sonos speakers
-- [ ] Test `/state` endpoint returns current playback info
-- [ ] Document API base URL for config
+**Unlocks:** Office Vitality Widget (temp/humidity), Security Status Bar (contact sensors)
+
+#### Add Ecobee Plugin (Child Bridge, Unpaired)
+- [ ] Install `homebridge-ecobee3-sensors` or similar plugin
+- [ ] Enable "Child Bridge" mode in plugin settings
+- [ ] Configure with Ecobee account credentials
+- [ ] **Do NOT pair the child bridge to HomeKit**
+- [ ] Verify thermostat and room sensors appear in API
+- [ ] Document available data (thermostat mode, setpoints, room sensor temps)
+
+**Unlocks:** Office Vitality Widget (additional temp data), potential Thermostat widget
+
+#### Add Hue Plugin (Child Bridge, Unpaired)
+- [ ] Install `homebridge-hue` plugin
+- [ ] Enable "Child Bridge" mode in plugin settings
+- [ ] Configure with Hue bridge credentials
+- [ ] **Do NOT pair the child bridge to HomeKit**
+- [ ] Verify lights and scenes appear in API
+- [ ] Document available data (light states, colors, scenes)
+
+**Unlocks:** Light status indicator, potential dynamic theming from light colors
+
+### Sonos: Deploy HTTP API ✅
+- [x] Deploy `node-sonos-http-api` (Docker on UNRAID)
+- [x] Verify it discovers Sonos speakers (5 zones: Roam, Arc, One, Bedroom, Era 100)
+- [x] Test `/zones` endpoint returns current playback info
+- [x] Document API base URL: `http://192.168.0.155:5005`
 
 **Unlocks:** Sonos Now Playing, Dynamic Theming
 
@@ -71,7 +94,7 @@ Pure frontend work. No external dependencies.
 
 ## Phase 2: Home Intelligence (Homebridge)
 
-Requires Homebridge API access. Aqara integration recommended for full functionality.
+Requires Homebridge API access with Aqara, Ecobee, and Hue plugins configured as unpaired child bridges.
 
 ### 2.1 Backend: Homebridge API Route
 **Files:** New `server/routes/homebridge.ts`, `server/index.ts`
@@ -86,14 +109,14 @@ Requires Homebridge API access. Aqara integration recommended for full functiona
 ### 2.2 Office Vitality Widget
 **Files:** New `src/components/widgets/OfficeVitality.tsx`, new hook
 
-**Depends on:** Aqara in Homebridge (for temp/humidity sensors)
+**Depends on:** Aqara and/or Ecobee in Homebridge
 
 - [ ] Create `useHomebridge` hook for fetching accessory data
-- [ ] Identify accessory IDs for office sensors
+- [ ] Identify accessory IDs for office sensors (Aqara temp/humidity, Ecobee room sensors)
 - [ ] Create widget displaying:
   - Temperature (with unit conversion if needed)
   - Humidity percentage
-  - Optional: CO2 level if sensor exists
+  - Optional: Ecobee thermostat mode/setpoint
 - [ ] Add visual indicators (color coding for comfort ranges)
 - [ ] Add to Dashboard layout
 - [ ] Configure refresh interval (every 5 minutes?)
@@ -101,47 +124,58 @@ Requires Homebridge API access. Aqara integration recommended for full functiona
 ### 2.3 Security Status Bar
 **Files:** New `src/components/widgets/SecurityStatusBar.tsx`
 
-**Depends on:** Homebridge API route, Ring plugin, optionally Aqara contact sensors
+**Depends on:** Homebridge API route, Aqara contact sensors
 
-- [ ] Identify relevant device types:
-  - Ring: alarm status, contact sensors, motion sensors
-  - Aqara: door/window contact sensors
-- [ ] Create component that fetches security device states
+- [ ] Identify relevant Aqara contact sensors (doors, windows)
+- [ ] Create component that fetches contact sensor states
 - [ ] Display logic:
-  - All secure: green bar, minimal text
-  - Something open/unlocked: red bar, show device name
-  - Alarm status indicator (home/away/disarmed)
-- [ ] Position as footer bar
+  - All closed: green bar or hidden
+  - Something open: amber/red bar, show which door/window
+- [ ] Position as footer bar or subtle indicator
 - [ ] Handle device unavailable states
+
+### 2.4 Light Status Indicator
+**Files:** New `src/components/widgets/LightStatus.tsx`
+
+**Depends on:** Homebridge API route, Hue plugin
+
+- [ ] Fetch light states from Homebridge API
+- [ ] Determine display approach:
+  - Option A: Room-by-room indicators (dots or icons)
+  - Option B: Simple "X lights on" summary
+  - Option C: Show active scene name if using Hue scenes
+- [ ] Consider subtle placement (corner indicator vs dedicated widget)
+- [ ] Optional: Extract dominant light color for ambient theming
 
 ---
 
 ## Phase 3: Audio & Ambiance (Sonos)
 
-Requires `node-sonos-http-api` running.
+Requires `node-sonos-http-api` running. ✅ Deployed on UNRAID.
 
-### 3.1 Backend: Sonos API Route
-**Files:** New `server/routes/sonos.ts`, `server/index.ts`
+### 3.1 Backend: Sonos API Route ✅
+**Files:** `server/routes/sonos.ts`, `server/index.ts`
 
-- [ ] Create Express route for Sonos proxy
-- [ ] Add config for Sonos HTTP API URL
-- [ ] Implement `/api/sonos/state` endpoint
-- [ ] Return: playing status, track info, album art URL, speaker name
-- [ ] Handle Sonos API unavailable gracefully
+- [x] Create Express route for Sonos proxy
+- [x] Add config for Sonos HTTP API URL (env: `SONOS_API_URL`, default: `http://192.168.0.155:5005`)
+- [x] Implement `/api/sonos/zones` endpoint (raw data)
+- [x] Implement `/api/sonos/now-playing` endpoint (simplified, filtered)
+- [x] Implement `/api/sonos/album-art` endpoint (CORS proxy for album art)
+- [x] Handle Sonos API unavailable gracefully
 
-### 3.2 Sonos Now Playing Widget
-**Files:** New `src/components/widgets/SonosNowPlaying.tsx`, new hook
+### 3.2 Sonos Now Playing Widget ✅
+**Files:** `src/components/widgets/SonosNowPlaying.tsx`, `src/hooks/useSonos.ts`
 
-- [ ] Create `useSonos` hook for fetching playback state
-- [ ] Create widget displaying:
-  - Large album art (background-size: cover)
-  - Artist name
+- [x] Create `useSonos` hook for fetching playback state
+- [x] Create widget displaying:
+  - Album art (80x80)
   - Track title
+  - Artist name
   - Speaker/room name
-- [ ] Show only when actively playing
-- [ ] Hide or show placeholder when paused/stopped
-- [ ] Add to Dashboard layout (conditionally visible)
-- [ ] Configure polling interval
+- [x] Show only when actively playing (configurable to show paused)
+- [x] Hide when nothing playing
+- [x] Add to Dashboard layout (bottom center)
+- [x] Configure polling interval (default 10 seconds)
 
 ### 3.3 Dynamic Theming (Album Art Colors)
 **Files:** `server/routes/sonos.ts`, new theme system
@@ -227,15 +261,19 @@ Based on dependencies and value:
 1. ~~**Phase 1.1** - Next Event Countdown~~ ✅
 2. ~~**Phase 1.2** - Workday Progress Bar~~ ✅
 3. ~~**Phase 4.1** - Night Mode~~ ✅
-4. **Infrastructure: Homebridge API** - Unlocks Phase 2
-5. **Infrastructure: Aqara in Homebridge** - Better sensor coverage
-6. **Phase 2.1** - Homebridge API Route
-7. **Phase 2.2** - Office Vitality Widget
-8. **Phase 2.3** - Security Status Bar
-9. **Infrastructure: Sonos HTTP API** - Unlocks Phase 3
-10. **Phase 3.1-3.2** - Sonos Now Playing
-11. **Phase 3.3** - Dynamic Theming (polish)
-12. **Phase 4.2-4.3** - Mode System (needs "Home" widgets defined first)
+4. ~~**Infrastructure: Sonos HTTP API**~~ ✅ (Docker on UNRAID)
+5. ~~**Phase 3.1** - Sonos API Route (backend)~~ ✅
+6. ~~**Phase 3.2** - Sonos Now Playing Widget~~ ✅
+7. **Phase 3.3** - Dynamic Theming (album art colors)
+8. **Infrastructure: Homebridge API Access** - Verify API is accessible
+9. **Infrastructure: Aqara Plugin** - Child bridge, unpaired, for sensors
+10. **Infrastructure: Ecobee Plugin** - Child bridge, unpaired, for thermostat/room sensors
+11. **Infrastructure: Hue Plugin** - Child bridge, unpaired, for light states
+12. **Phase 2.1** - Homebridge API Route (backend)
+13. **Phase 2.2** - Office Vitality Widget
+14. **Phase 2.3** - Security Status Bar
+15. **Phase 2.4** - Light Status Indicator
+16. **Phase 4.2-4.3** - Mode System (needs "Home" widgets defined first)
 
 ---
 

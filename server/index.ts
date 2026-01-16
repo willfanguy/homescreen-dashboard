@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { calendarRouter } from './routes/calendar.js';
 import { photosRouter } from './routes/photos.js';
+import { sonosRouter } from './routes/sonos.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -14,6 +15,9 @@ app.use('/api/calendar', calendarRouter);
 
 // Google Photos - OAuth flow and photo fetching
 app.use('/api/photos', photosRouter);
+
+// Sonos - playback state from Sonos HTTP API
+app.use('/api/sonos', sonosRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {

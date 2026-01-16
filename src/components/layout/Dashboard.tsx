@@ -7,6 +7,7 @@ import { TrashReminder } from '../widgets/TrashReminder';
 import { NextEventCountdown } from '../widgets/NextEventCountdown';
 import { WorkdayProgressBar } from '../widgets/WorkdayProgressBar';
 import { NightMode } from '../overlays/NightMode';
+import { SonosNowPlaying } from '../widgets/SonosNowPlaying';
 import { useWeather } from '../../hooks/useWeather';
 import { useCalendar } from '../../hooks/useCalendar';
 import { usePhotos } from '../../hooks/usePhotos';
@@ -146,6 +147,10 @@ export function Dashboard() {
             maxHoursAhead={3}
             excludeCalendarIds={['trash']}
           />
+        </div>
+
+        <div className="dashboard-bottom-center">
+          <SonosNowPlaying refreshInterval={10000} />
         </div>
 
         <div className="dashboard-left">
