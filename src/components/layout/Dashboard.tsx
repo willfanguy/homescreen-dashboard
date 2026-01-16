@@ -8,6 +8,7 @@ import { NextEventCountdown } from '../widgets/NextEventCountdown';
 import { WorkdayProgressBar } from '../widgets/WorkdayProgressBar';
 import { NightMode } from '../overlays/NightMode';
 import { SonosNowPlaying } from '../widgets/SonosNowPlaying';
+import { SensorBar } from '../widgets/SensorBar';
 import { useWeather } from '../../hooks/useWeather';
 import { useCalendar } from '../../hooks/useCalendar';
 import { usePhotos } from '../../hooks/usePhotos';
@@ -151,6 +152,7 @@ export function Dashboard() {
 
         <div className="dashboard-bottom-center">
           <SonosNowPlaying refreshInterval={10000} />
+          <SensorBar useFahrenheit={true} />
         </div>
 
         <div className="dashboard-left">
