@@ -10,6 +10,11 @@ export interface AppConfig {
   calendar: {
     limit: number;
   };
+  workday: {
+    startHour: number; // 0-23, e.g., 9 for 9 AM
+    endHour: number;   // 0-23, e.g., 17 for 5 PM
+    showOnWeekends: boolean;
+  };
   // Calendar sources use iCal URLs - can be from any Google account
   // Work account already has personal calendars merged
   calendars: CalendarSource[];
@@ -43,6 +48,12 @@ export const config: AppConfig = {
 
   calendar: {
     limit: 15,
+  },
+
+  workday: {
+    startHour: 8,  // 8 AM
+    endHour: 18,   // 6 PM
+    showOnWeekends: false,
   },
 
   // Calendar sources - mix of iCal URLs and Google Calendar API
