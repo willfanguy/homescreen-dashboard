@@ -103,7 +103,7 @@ export const config: AppConfig = {
   photos: {
     albumToken: 'B0n5ON9t3syvwZ',
     rotateInterval: 300, // 5 minutes
-    brightness: 0.6,
+    brightness: 0.5, // lower = darker overlay
     blur: false,
     vignette: true,
   },
