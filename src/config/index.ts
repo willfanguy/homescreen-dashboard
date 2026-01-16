@@ -20,6 +20,11 @@ export interface AppConfig {
     endHour: number;   // 0-23, e.g., 6 for 6 AM
     enabled: boolean;
   };
+  sonos: {
+    // Map Sonos speaker/zone names to display names
+    // Key: Sonos zone name, Value: display name
+    roomNames: Record<string, string>;
+  };
   // Calendar sources use iCal URLs - can be from any Google account
   // Work account already has personal calendars merged
   calendars: CalendarSource[];
@@ -65,6 +70,17 @@ export const config: AppConfig = {
     startHour: 23, // 11 PM
     endHour: 6,    // 6 AM
     enabled: true,
+  },
+
+  sonos: {
+    // Map Sonos zone names to friendly room names
+    roomNames: {
+      'One': 'Office',
+      'Roam': 'Kitchen',
+      'Sonos Arc': 'Living Room',
+      'Bedroom': 'Bedroom',
+      'Era 100': 'Record Player',
+    },
   },
 
   // Calendar sources - mix of iCal URLs and Google Calendar API
