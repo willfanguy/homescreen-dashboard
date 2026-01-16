@@ -228,14 +228,17 @@ calendarRouter.get('/google/events/:calendarId', async (req, res) => {
     }
 
     const data = await response.json();
-    const events = (data.items || []).map((event: any) => ({
-      id: event.id,
-      summary: event.summary || '(No title)',
-      start: event.start?.dateTime || event.start?.date,
-      end: event.end?.dateTime || event.end?.date,
-      allDay: !event.start?.dateTime,
-      htmlLink: event.htmlLink
-    }));
+    const events = (data.items || [])
+      // Filter out working location events (e.g., "All Day Home")
+      .filter((event: any) => event.eventType !== 'workingLocation')
+      .map((event: any) => ({
+        id: event.id,
+        summary: event.summary || '(No title)',
+        start: event.start?.dateTime || event.start?.date,
+        end: event.end?.dateTime || event.end?.date,
+        allDay: !event.start?.dateTime,
+        htmlLink: event.htmlLink
+      }));
 
     res.json(events);
   } catch (error) {
