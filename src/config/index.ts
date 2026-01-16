@@ -1,5 +1,15 @@
 import type { CalendarSource } from '../types/dashboard';
 
+// Environment variables (from .env.local)
+// These contain secrets and should not be committed to the repo
+const env = {
+  icalUrlPersonal: import.meta.env.VITE_ICAL_URL_PERSONAL || '',
+  icalUrlShared: import.meta.env.VITE_ICAL_URL_SHARED || '',
+  icalUrlTrash: import.meta.env.VITE_ICAL_URL_TRASH || '',
+  googleCalendarId: import.meta.env.VITE_GOOGLE_CALENDAR_ID || '',
+  icloudAlbumToken: import.meta.env.VITE_ICLOUD_ALBUM_TOKEN || '',
+};
+
 export interface AppConfig {
   timezone: string;
   clock: {
@@ -84,34 +94,35 @@ export const config: AppConfig = {
   },
 
   // Calendar sources - mix of iCal URLs and Google Calendar API
+  // Sensitive URLs are loaded from environment variables (see .env.example)
   calendars: [
     {
       id: 'work',
       name: 'Work',
       color: '#003a9b',
-      enabled: true,
-      googleCalendarId: 'wfanguy@contractor.indeed.com',
+      enabled: !!env.googleCalendarId,
+      googleCalendarId: env.googleCalendarId,
     },
     {
       id: 'personal',
       name: 'Personal',
       color: '#3f51b5',
-      enabled: true,
-      icalUrl: 'https://calendar.google.com/calendar/ical/will.fanguy%40gmail.com/private-1ba3cb07f1879b90fb537e2b07c456bf/basic.ics',
+      enabled: !!env.icalUrlPersonal,
+      icalUrl: env.icalUrlPersonal,
     },
     {
       id: 'shared',
       name: 'W+L',
       color: '#009688',
-      enabled: true,
-      icalUrl: 'https://calendar.google.com/calendar/ical/henvmd02vmfsaeclloepv1fj8c%40group.calendar.google.com/private-d3725444ad9c88d486a9ad5c2064591b/basic.ics',
+      enabled: !!env.icalUrlShared,
+      icalUrl: env.icalUrlShared,
     },
     {
       id: 'trash',
       name: 'Trash & Recycling',
       color: '#795548',
-      enabled: true,
-      icalUrl: 'https://recollect.a.ssl.fastly.net/api/places/98FC9CCA-5910-11E8-B1B1-B8DF4FF8365D/services/323/events.en-US.ics?client_id=1049768E-DF21-11EF-9183-CFFC2C1B26CC',
+      enabled: !!env.icalUrlTrash,
+      icalUrl: env.icalUrlTrash,
     },
   ],
 
@@ -126,9 +137,10 @@ export const config: AppConfig = {
   },
 
   // iCloud Shared Album
-  // Album token from shared album URL: icloud.com/sharedalbum/#B0n5ON9t3syvwZ
+  // Album token from shared album URL: icloud.com/sharedalbum/#<token>
+  // Token is loaded from environment variable (see .env.example)
   photos: {
-    albumToken: 'B0n5ON9t3syvwZ',
+    albumToken: env.icloudAlbumToken,
     rotateInterval: 300, // 5 minutes
     brightness: 0.5, // lower = darker overlay
     blur: false,

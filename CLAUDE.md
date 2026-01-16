@@ -103,12 +103,49 @@ Weather uses Open-Meteo (free, no API key). Just set lat/lon in config.
 
 ## Deployment to Pi
 
+### Build and Copy
+
 ```bash
 npm run build
 # Copy dist/ and server/ to Pi
-# Run: node server/index.js (or use PM2)
-# Open Chromium in kiosk mode pointed at localhost
 ```
+
+### Environment Variables
+
+Create `/home/pi/.env.dashboard` on the Pi with your secrets:
+
+```bash
+# Backend
+HOMEBRIDGE_URL=http://192.168.0.155:8581
+HOMEBRIDGE_USERNAME=your-username
+HOMEBRIDGE_PASSWORD=your-password
+SONOS_API_URL=http://192.168.0.155:5005
+
+# Frontend (baked into build - set before building)
+VITE_GOOGLE_CALENDAR_ID=your-work-email@company.com
+VITE_ICAL_URL_PERSONAL=https://calendar.google.com/...
+VITE_ICAL_URL_SHARED=https://calendar.google.com/...
+VITE_ICAL_URL_TRASH=https://recollect.a.ssl.fastly.net/...
+VITE_ICLOUD_ALBUM_TOKEN=your-album-token
+```
+
+**Note:** Frontend VITE_* variables are embedded at build time. Either:
+- Build on the Pi with `.env.local` present, or
+- Build locally with the env vars set, then copy dist/
+
+### Run with PM2
+
+```bash
+# Source env vars and start server
+pm2 start server/index.js --name dashboard-api --env-file /home/pi/.env.dashboard
+
+# Or with ecosystem file:
+pm2 start ecosystem.config.js
+```
+
+### Kiosk Mode
+
+Open Chromium in kiosk mode pointed at localhost
 
 ## DAKboard Reference
 

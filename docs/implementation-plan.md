@@ -12,31 +12,35 @@ These need to happen before certain features can be built.
 
 Homebridge will serve as a **dedicated API layer** for the dashboard, completely separate from HomeKit. Native HomeKit integrations (Ring, TP-Link, etc.) stay as-is. Homebridge plugins run as **child bridges that are NOT paired to HomeKit** to avoid duplicates.
 
-#### Enable API Access
-- [ ] Confirm Homebridge UI is accessible at `http://<server>:8581`
-- [ ] Verify auth mode (currently `"auth": "none"` - good for local API access)
-- [ ] Test API endpoint: `curl http://<server>:8581/api/accessories`
+#### Enable API Access ✅
+- [x] Confirm Homebridge UI is accessible at `http://192.168.0.155:8581`
+- [x] API requires JWT auth even with "auth: none" UI setting
+- [x] Auth endpoint: POST `/api/auth/login` with `{"username":"will","password":"..."}` returns JWT
+- [x] Use JWT in header: `Authorization: Bearer <token>`
+- [x] Test endpoint: `curl http://192.168.0.155:8581/api/accessories -H "Authorization: Bearer <token>"`
 
-#### Add Aqara Plugin (Child Bridge, Unpaired)
-- [ ] Identify which Aqara hub model is in use
-- [ ] Install appropriate Homebridge plugin (`homebridge-aqara`, `homebridge-mi-aqara`, or hub-specific)
-- [ ] Enable "Child Bridge" mode in plugin settings
-- [ ] Configure plugin with hub credentials
-- [ ] **Do NOT pair the child bridge to HomeKit**
-- [ ] Verify sensors appear in Homebridge API
-- [ ] Document available sensors and accessory IDs (temp, humidity, contact)
+#### Add Aqara Plugin - BLOCKED
+- [x] Identified hub model: **Aqara E1**
+- [x] E1 does NOT support LAN protocol (no local API access)
+- [x] Old Homebridge plugins (homebridge-aqara, homebridge-mi-aqara) require LAN protocol
+- [ ] **Alternative options:**
+  - Zigbee2MQTT with a Zigbee coordinator dongle (~$20-30) - bypasses hub entirely
+  - Wait for Aqara to release official cloud API plugin
+  - Use other sensors (Ecobee, Hue motion sensors) for temperature data
 
-**Unlocks:** Office Vitality Widget (temp/humidity), Security Status Bar (contact sensors)
+**Status:** Cannot proceed without LAN protocol or Zigbee coordinator
 
-#### Add Ecobee Plugin (Child Bridge, Unpaired)
-- [ ] Install `homebridge-ecobee3-sensors` or similar plugin
-- [ ] Enable "Child Bridge" mode in plugin settings
-- [ ] Configure with Ecobee account credentials
-- [ ] **Do NOT pair the child bridge to HomeKit**
+#### Add Ecobee Plugin (Child Bridge, Unpaired) - IN PROGRESS
+- [x] Installed `homebridge-ecobee-status` (only exposes Home/Away/Sleep status)
+- [x] Generated refresh token via `npx ecobee-auth-cli`
+- [x] Running as child bridge (unpaired from HomeKit)
+- [ ] **NEXT:** Install `homebridge-ecobee3-sensors` for actual temperature data
+  - GitHub: https://github.com/vojtamolda/homebridge-ecobee3-sensors
+  - Note: Ecobee stopped issuing new API keys March 2024, but existing tokens may work
 - [ ] Verify thermostat and room sensors appear in API
 - [ ] Document available data (thermostat mode, setpoints, room sensor temps)
 
-**Unlocks:** Office Vitality Widget (additional temp data), potential Thermostat widget
+**Unlocks:** Office Vitality Widget (temp data), potential Thermostat widget
 
 #### Add Hue Plugin (Child Bridge, Unpaired)
 - [ ] Install `homebridge-hue` plugin
@@ -45,6 +49,7 @@ Homebridge will serve as a **dedicated API layer** for the dashboard, completely
 - [ ] **Do NOT pair the child bridge to HomeKit**
 - [ ] Verify lights and scenes appear in API
 - [ ] Document available data (light states, colors, scenes)
+- [ ] Note: Hue motion sensors also have temperature sensors
 
 **Unlocks:** Light status indicator, potential dynamic theming from light colors
 
@@ -94,32 +99,34 @@ Pure frontend work. No external dependencies.
 
 ## Phase 2: Home Intelligence (Homebridge)
 
-Requires Homebridge API access with Aqara, Ecobee, and Hue plugins configured as unpaired child bridges.
+Requires Homebridge API access with Ecobee (and optionally Hue) plugins configured as unpaired child bridges.
 
-### 2.1 Backend: Homebridge API Route
-**Files:** New `server/routes/homebridge.ts`, `server/index.ts`
+### 2.1 Backend: Homebridge API Route ✅
+**Files:** `server/routes/homebridge.ts`, `server/index.ts`
 
-- [ ] Create new Express route for Homebridge proxy
-- [ ] Add config for Homebridge URL (default `http://localhost:8581`)
-- [ ] Implement `/api/homebridge/accessories` endpoint
-- [ ] Filter/transform response to only include relevant data
-- [ ] Add endpoint for specific accessory by ID if needed
-- [ ] Handle Homebridge being unavailable gracefully
+- [x] Create new Express route for Homebridge proxy
+- [x] Add config for Homebridge URL via environment variable
+- [x] Implement JWT authentication with token caching
+- [x] Implement `/api/homebridge/accessories` endpoint (raw data)
+- [x] Implement `/api/homebridge/sensors` endpoint (filtered temp/humidity)
+- [x] Implement `/api/homebridge/lights` endpoint (light states)
+- [x] Implement `/api/homebridge/summary` endpoint (combined dashboard data)
+- [x] Handle Homebridge being unavailable gracefully
 
-### 2.2 Office Vitality Widget
-**Files:** New `src/components/widgets/OfficeVitality.tsx`, new hook
+### 2.2 Office Vitality Widget ✅
+**Files:** `src/components/widgets/OfficeVitality.tsx`, `src/hooks/useHomebridge.ts`
 
-**Depends on:** Aqara and/or Ecobee in Homebridge
+**Data source:** Ecobee room sensors via Homebridge
 
-- [ ] Create `useHomebridge` hook for fetching accessory data
-- [ ] Identify accessory IDs for office sensors (Aqara temp/humidity, Ecobee room sensors)
-- [ ] Create widget displaying:
-  - Temperature (with unit conversion if needed)
-  - Humidity percentage
-  - Optional: Ecobee thermostat mode/setpoint
-- [ ] Add visual indicators (color coding for comfort ranges)
-- [ ] Add to Dashboard layout
-- [ ] Configure refresh interval (every 5 minutes?)
+- [x] Create `useHomebridge` hook for fetching sensor data
+- [x] Widget displays:
+  - Temperature (°F or °C)
+  - Humidity percentage (from thermostat sensor)
+  - Optional: occupancy indicator
+- [x] Color-coded temperature states (cold/cool/comfortable/warm/hot)
+- [x] Color-coded humidity states (dry/comfortable/humid)
+- [x] Added to Dashboard layout (right side, above trash reminder)
+- [x] 5-minute refresh interval
 
 ### 2.3 Security Status Bar
 **Files:** New `src/components/widgets/SecurityStatusBar.tsx`
@@ -264,14 +271,14 @@ Based on dependencies and value:
 4. ~~**Infrastructure: Sonos HTTP API**~~ ✅ (Docker on UNRAID)
 5. ~~**Phase 3.1** - Sonos API Route (backend)~~ ✅
 6. ~~**Phase 3.2** - Sonos Now Playing Widget~~ ✅
-7. **Phase 3.3** - Dynamic Theming (album art colors)
-8. **Infrastructure: Homebridge API Access** - Verify API is accessible
-9. **Infrastructure: Aqara Plugin** - Child bridge, unpaired, for sensors
-10. **Infrastructure: Ecobee Plugin** - Child bridge, unpaired, for thermostat/room sensors
-11. **Infrastructure: Hue Plugin** - Child bridge, unpaired, for light states
-12. **Phase 2.1** - Homebridge API Route (backend)
-13. **Phase 2.2** - Office Vitality Widget
-14. **Phase 2.3** - Security Status Bar
+7. ~~**Infrastructure: Homebridge API Access**~~ ✅ (JWT auth at http://192.168.0.155:8581)
+8. ~~**Infrastructure: Aqara Plugin**~~ ❌ BLOCKED - E1 hub has no LAN protocol
+9. ~~**Infrastructure: Ecobee Plugin**~~ ✅ (homebridge-ecobee3-sensors as child bridge)
+10. ~~**Phase 2.1** - Homebridge API Route (backend)~~ ✅
+11. ~~**Phase 2.2** - Office Vitality Widget~~ ✅
+12. **Phase 3.3** - Dynamic Theming (album art colors)
+13. **Infrastructure: Hue Plugin** - Child bridge, unpaired, for light states
+14. **Phase 2.3** - Security Status Bar (needs contact sensors - blocked without Aqara/Z2M)
 15. **Phase 2.4** - Light Status Indicator
 16. **Phase 4.2-4.3** - Mode System (needs "Home" widgets defined first)
 
@@ -283,3 +290,4 @@ Based on dependencies and value:
 - Sonos HTTP API needs to be on same network as Sonos speakers
 - Night mode times should account for timezone (America/Chicago)
 - Consider Pi performance for animations (test Framer Motion)
+- **Environment Variables:** Sensitive credentials moved to `.env.local` (gitignored). See `.env.example` for required variables and CLAUDE.md for Pi deployment instructions.
