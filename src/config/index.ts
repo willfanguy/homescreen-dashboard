@@ -15,6 +15,11 @@ export interface AppConfig {
     endHour: number;   // 0-23, e.g., 17 for 5 PM
     showOnWeekends: boolean;
   };
+  nightMode: {
+    startHour: number; // 0-23, e.g., 23 for 11 PM
+    endHour: number;   // 0-23, e.g., 6 for 6 AM
+    enabled: boolean;
+  };
   // Calendar sources use iCal URLs - can be from any Google account
   // Work account already has personal calendars merged
   calendars: CalendarSource[];
@@ -54,6 +59,12 @@ export const config: AppConfig = {
     startHour: 8,  // 8 AM
     endHour: 18,   // 6 PM
     showOnWeekends: false,
+  },
+
+  nightMode: {
+    startHour: 23, // 11 PM
+    endHour: 6,    // 6 AM
+    enabled: true,
   },
 
   // Calendar sources - mix of iCal URLs and Google Calendar API

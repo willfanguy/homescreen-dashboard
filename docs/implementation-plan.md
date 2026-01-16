@@ -162,19 +162,20 @@ Requires `node-sonos-http-api` running.
 
 Time-based dashboard personality changes.
 
-### 4.1 Night Mode
-**Files:** New `src/components/overlays/NightMode.tsx`, `src/config/index.ts`
+### 4.1 Night Mode ✅
+**Files:** `src/components/overlays/NightMode.tsx`, `src/config/index.ts`, `src/App.css`
 
-No external dependencies. Can implement anytime.
+No external dependencies.
 
-- [ ] Add config for night mode time range (e.g., 11 PM - 6 AM)
-- [ ] Create overlay component:
-  - Black/near-black background
-  - Dim red clock only (prevents room glow, eye-friendly)
-  - Covers entire screen
-- [ ] Add time-based trigger logic
-- [ ] Smooth fade transition in/out
-- [ ] Consider: should any interaction dismiss it temporarily?
+- [x] Add config for night mode time range (default 11 PM - 6 AM)
+- [x] Create overlay component with:
+  - Black background
+  - Dim red clock and date
+  - Current temperature with weather icon
+  - Next morning event (if before 10 AM)
+- [x] Add time-based trigger logic (handles overnight ranges)
+- [x] Smooth fade transition (1s ease-in-out)
+- [x] Test mode via `?testNightMode=true` URL param
 
 ### 4.2 Dashboard Mode System (Work/Home)
 **Files:** `src/App.tsx` or `src/components/layout/Dashboard.tsx`, `src/config/index.ts`
@@ -223,9 +224,9 @@ Things mentioned but not fully specced. Add detail when ready to implement.
 
 Based on dependencies and value:
 
-1. **Phase 1.1** - Next Event Countdown (immediate value, no deps)
-2. **Phase 1.2** - Workday Progress Bar (pairs with above)
-3. **Phase 4.1** - Night Mode (self-contained, prevents burn-in)
+1. ~~**Phase 1.1** - Next Event Countdown~~ ✅
+2. ~~**Phase 1.2** - Workday Progress Bar~~ ✅
+3. ~~**Phase 4.1** - Night Mode~~ ✅
 4. **Infrastructure: Homebridge API** - Unlocks Phase 2
 5. **Infrastructure: Aqara in Homebridge** - Better sensor coverage
 6. **Phase 2.1** - Homebridge API Route
