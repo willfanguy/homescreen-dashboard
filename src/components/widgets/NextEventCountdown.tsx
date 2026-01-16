@@ -83,10 +83,10 @@ export function NextEventCountdown({
 
   return (
     <div className={`next-event-countdown urgency-${urgency}`}>
-      <div className="countdown-time">{formatCountdown()}</div>
-      <div className="countdown-label">until</div>
-      <div className="countdown-event-title">{nextEvent.title}</div>
-      <div className="countdown-event-time">at {formatEventTime()}</div>
+      <span className="countdown-time">{formatCountdown()}</span>
+      <span className="countdown-label">until</span>
+      <span className="countdown-event-title">{nextEvent.title}</span>
+      <span className="countdown-event-time">at {formatEventTime()}</span>
     </div>
   );
 }
