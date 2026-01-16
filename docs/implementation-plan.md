@@ -54,16 +54,18 @@ Pure frontend work. No external dependencies.
 - [x] Only show if next event is within 3 hours (configurable via `maxHoursAhead` prop)
 - [x] Position in top-center of dashboard
 
-### 1.2 Workday Progress Bar
-**Files:** New `src/components/widgets/WorkdayProgressBar.tsx`, `src/config/index.ts`
+### 1.2 Workday Progress Bar ✅
+**Files:** `src/components/widgets/WorkdayProgressBar.tsx`, `src/config/index.ts`, `src/App.css`
 
-- [ ] Add config options for workday start/end times (e.g., 9:00 AM - 5:00 PM)
-- [ ] Create thin progress bar component
-- [ ] Calculate percentage: `(now - start) / (end - start) * 100`
-- [ ] Update on interval (every minute is fine)
-- [ ] Style: gradient fill, positioned at top of screen
-- [ ] Handle outside-workday state (hidden? empty? full?)
-- [ ] Integrate into Dashboard layout
+- [x] Add config options for workday start/end times (e.g., 9:00 AM - 5:00 PM)
+- [x] Add config option for showOnWeekends
+- [x] Create thin progress bar component
+- [x] Calculate percentage: `(now - start) / (end - start) * 100`
+- [x] Update on interval (every minute)
+- [x] Style: gradient fill (green to yellow-green), positioned at top of screen
+- [x] Handle outside-workday state (hidden when before/after workday or on weekends)
+- [x] Integrate into Dashboard layout
+- [x] Timezone-aware calculation
 
 ---
 

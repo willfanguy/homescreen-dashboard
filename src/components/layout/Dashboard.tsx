@@ -5,6 +5,7 @@ import { Weather } from '../widgets/Weather';
 import { PhotoBackground } from '../widgets/PhotoBackground';
 import { TrashReminder } from '../widgets/TrashReminder';
 import { NextEventCountdown } from '../widgets/NextEventCountdown';
+import { WorkdayProgressBar } from '../widgets/WorkdayProgressBar';
 import { useWeather } from '../../hooks/useWeather';
 import { useCalendar } from '../../hooks/useCalendar';
 import { usePhotos } from '../../hooks/usePhotos';
@@ -121,6 +122,13 @@ export function Dashboard() {
         brightness={config.photos.brightness}
         blur={config.photos.blur}
         vignette={config.photos.vignette}
+      />
+
+      <WorkdayProgressBar
+        startHour={config.workday.startHour}
+        endHour={config.workday.endHour}
+        showOnWeekends={config.workday.showOnWeekends}
+        timezone={config.timezone}
       />
 
       {photos.error && (
