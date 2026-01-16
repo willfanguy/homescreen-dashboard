@@ -4,6 +4,7 @@ import { Calendar } from '../widgets/Calendar';
 import { Weather } from '../widgets/Weather';
 import { PhotoBackground } from '../widgets/PhotoBackground';
 import { TrashReminder } from '../widgets/TrashReminder';
+import { NextEventCountdown } from '../widgets/NextEventCountdown';
 import { useWeather } from '../../hooks/useWeather';
 import { useCalendar } from '../../hooks/useCalendar';
 import { usePhotos } from '../../hooks/usePhotos';
@@ -13,8 +14,9 @@ import { getMoonPhase, type MoonPhaseData } from '../../utils/moonPhase';
 import { config } from '../../config';
 import type { CalendarEvent, WeatherAlert } from '../../types/dashboard';
 
-// Toggle test data via URL param: ?testData=true
+// Toggle test data via URL param: ?testData=true or ?testCountdown=true
 const SHOW_TEST_DATA = new URLSearchParams(window.location.search).get('testData') === 'true';
+const SHOW_TEST_COUNTDOWN = new URLSearchParams(window.location.search).get('testCountdown') === 'true';
 
 export function Dashboard() {
   const weather = useWeather(config.weather);
@@ -76,8 +78,26 @@ export function Dashboard() {
     }];
   }, []);
 
-  // Merge test data and NWS alerts with weather data
+  // Test event for countdown: starts 10 minutes from now
+  const testCountdownEvents: CalendarEvent[] = useMemo(() => {
+    if (!SHOW_TEST_COUNTDOWN) return [];
+    const now = new Date();
+    const eventStart = new Date(now.getTime() + 10 * 60 * 1000);
+    const eventEnd = new Date(eventStart.getTime() + 30 * 60 * 1000);
+    return [{
+      id: 'test-countdown',
+      title: 'Test Meeting - Watch the colors change!',
+      start: eventStart,
+      end: eventEnd,
+      allDay: false,
+      color: '#4285f4',
+      calendarId: 'test',
+    }];
+  }, []);
+
+  // Merge test data
   const allTrashEvents = SHOW_TEST_DATA ? [...calendar.events, ...testTrashEvents] : calendar.events;
+  const countdownEvents = SHOW_TEST_COUNTDOWN ? [...calendar.events, ...testCountdownEvents] : calendar.events;
   const weatherWithAlerts = useMemo(() => {
     if (!weather.data) return weather.data;
 
@@ -110,6 +130,14 @@ export function Dashboard() {
       )}
 
       <div className="dashboard-content">
+        <div className="dashboard-top-center">
+          <NextEventCountdown
+            events={countdownEvents}
+            maxHoursAhead={3}
+            excludeCalendarIds={['trash']}
+          />
+        </div>
+
         <div className="dashboard-left">
           <div className="gradient-overlay left" />
           <Clock
