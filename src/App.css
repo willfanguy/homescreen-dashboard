@@ -35,6 +35,87 @@
   text-align: right;
 }
 
+.dashboard-top-center {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  text-align: center;
+}
+
+/* Next Event Countdown Widget */
+.next-event-countdown {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  transition: background-color 0.3s ease;
+}
+
+.countdown-time {
+  font-size: 3.5rem;
+  font-weight: 300;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.countdown-label {
+  font-size: 1rem;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.countdown-event-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.countdown-event-time {
+  font-size: 1.125rem;
+  opacity: 0.7;
+}
+
+/* Urgency states */
+.next-event-countdown.urgency-normal .countdown-time {
+  color: #fff;
+}
+
+.next-event-countdown.urgency-warning {
+  background: rgba(255, 152, 0, 0.25);
+}
+
+.next-event-countdown.urgency-warning .countdown-time {
+  color: #ffb74d;
+}
+
+.next-event-countdown.urgency-critical {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.next-event-countdown.urgency-critical .countdown-time {
+  color: #ff5252;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
 /* Gradient Overlays */
 .gradient-overlay {
   position: absolute;
