@@ -6,6 +6,7 @@ import { PhotoBackground } from '../widgets/PhotoBackground';
 import { TrashReminder } from '../widgets/TrashReminder';
 import { NextEventCountdown } from '../widgets/NextEventCountdown';
 import { WorkdayProgressBar } from '../widgets/WorkdayProgressBar';
+import { NightMode } from '../overlays/NightMode';
 import { useWeather } from '../../hooks/useWeather';
 import { useCalendar } from '../../hooks/useCalendar';
 import { usePhotos } from '../../hooks/usePhotos';
@@ -15,9 +16,10 @@ import { getMoonPhase, type MoonPhaseData } from '../../utils/moonPhase';
 import { config } from '../../config';
 import type { CalendarEvent, WeatherAlert } from '../../types/dashboard';
 
-// Toggle test data via URL param: ?testData=true or ?testCountdown=true
+// Toggle test data via URL param: ?testData=true, ?testCountdown=true, ?testNightMode=true
 const SHOW_TEST_DATA = new URLSearchParams(window.location.search).get('testData') === 'true';
 const SHOW_TEST_COUNTDOWN = new URLSearchParams(window.location.search).get('testCountdown') === 'true';
+const SHOW_TEST_NIGHT_MODE = new URLSearchParams(window.location.search).get('testNightMode') === 'true';
 
 export function Dashboard() {
   const weather = useWeather(config.weather);
@@ -181,6 +183,15 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      <NightMode
+        enabled={SHOW_TEST_NIGHT_MODE || config.nightMode.enabled}
+        startHour={SHOW_TEST_NIGHT_MODE ? 0 : config.nightMode.startHour}
+        endHour={SHOW_TEST_NIGHT_MODE ? 24 : config.nightMode.endHour}
+        timezone={config.timezone}
+        weather={weather.data}
+        events={calendar.events}
+      />
     </div>
   );
 }
