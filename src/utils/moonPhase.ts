@@ -27,26 +27,27 @@ export function getMoonPhase(date: Date = new Date()): MoonPhaseData {
 }
 
 function getPhaseName(phase: number): string {
-  if (phase < 0.0625) return 'New Moon';
-  if (phase < 0.1875) return 'Waxing Crescent';
-  if (phase < 0.3125) return 'First Quarter';
-  if (phase < 0.4375) return 'Waxing Gibbous';
-  if (phase < 0.5625) return 'Full Moon';
-  if (phase < 0.6875) return 'Waning Gibbous';
-  if (phase < 0.8125) return 'Last Quarter';
-  if (phase < 0.9375) return 'Waning Crescent';
+  // Tighter thresholds: New/Full Moon ~1 day window, other phases evenly distributed
+  if (phase < 0.034) return 'New Moon';
+  if (phase < 0.178) return 'Waxing Crescent';
+  if (phase < 0.322) return 'First Quarter';
+  if (phase < 0.466) return 'Waxing Gibbous';
+  if (phase < 0.534) return 'Full Moon';
+  if (phase < 0.678) return 'Waning Gibbous';
+  if (phase < 0.822) return 'Last Quarter';
+  if (phase < 0.966) return 'Waning Crescent';
   return 'New Moon';
 }
 
 function getPhaseEmoji(phase: number): string {
-  if (phase < 0.0625) return '🌑';
-  if (phase < 0.1875) return '🌒';
-  if (phase < 0.3125) return '🌓';
-  if (phase < 0.4375) return '🌔';
-  if (phase < 0.5625) return '🌕';
-  if (phase < 0.6875) return '🌖';
-  if (phase < 0.8125) return '🌗';
-  if (phase < 0.9375) return '🌘';
+  if (phase < 0.034) return '🌑';
+  if (phase < 0.178) return '🌒';
+  if (phase < 0.322) return '🌓';
+  if (phase < 0.466) return '🌔';
+  if (phase < 0.534) return '🌕';
+  if (phase < 0.678) return '🌖';
+  if (phase < 0.822) return '🌗';
+  if (phase < 0.966) return '🌘';
   return '🌑';
 }
 
