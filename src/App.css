@@ -46,7 +46,7 @@
 
 /* Next Event Countdown Widget */
 .next-event-countdown {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 1rem 2rem;
