@@ -131,7 +131,7 @@ export const config: AppConfig = {
     lat: 30.360884,
     lon: -97.651821,
     units: 'imperial',
-    daysToShow: 7,
+    daysToShow: 5,
     showFeelsLike: true,
     showPrecipChance: true,
   },
