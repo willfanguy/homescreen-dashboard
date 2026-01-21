@@ -103,6 +103,10 @@ function parseICalEvents(icalText: string, source: CalendarSource): CalendarEven
         color: source.color,
       };
     } else if (line === 'END:VEVENT' && currentEvent) {
+      // For all-day events without DTEND, default end to start date
+      if (currentEvent.start && !currentEvent.end && currentEvent.allDay) {
+        currentEvent.end = currentEvent.start;
+      }
       if (currentEvent.id && currentEvent.title && currentEvent.start && currentEvent.end) {
         events.push(currentEvent as CalendarEvent);
       }
