@@ -76,21 +76,26 @@ async function fetchICloudAlbum(albumToken: string): Promise<ICloudPhoto[]> {
   const assetData = await assetResponse.json();
   const items = assetData.items || {};
 
-  // Step 3: Build photo URLs - find the largest derivative for each photo
+  // Step 3: Build photo URLs - find derivative closest to display size
+  // Full-res photos (12MP+) use ~48MB each when decoded in browser memory
+  // Target 1920x1080 display to keep memory manageable on Pi
+  const TARGET_SIZE = 1920 * 1080;
   const result: ICloudPhoto[] = [];
 
   for (const photo of photos) {
     const derivatives = photo.derivatives || {};
 
-    // Find the largest derivative (highest resolution)
+    // Find derivative closest to target display size (not largest)
     let bestDerivative: any = null;
-    let bestSize = 0;
+    let bestDiff = Infinity;
 
     for (const key of Object.keys(derivatives)) {
       const d = derivatives[key];
       const size = (d.width || 0) * (d.height || 0);
-      if (size > bestSize) {
-        bestSize = size;
+      // Prefer sizes >= target, but pick closest overall
+      const diff = Math.abs(size - TARGET_SIZE);
+      if (diff < bestDiff) {
+        bestDiff = diff;
         bestDerivative = d;
       }
     }
