@@ -60,7 +60,8 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
           uvIndex: json.current.uv_index ?? 0,
         },
         forecast: json.daily.time.map((date: string, i: number) => ({
-          date: new Date(date),
+          // Append T12:00 to parse as local noon, avoiding timezone date shifts
+          date: new Date(date + 'T12:00:00'),
           high: json.daily.temperature_2m_max[i],
           low: json.daily.temperature_2m_min[i],
           condition: getWeatherCondition(json.daily.weather_code[i]),
