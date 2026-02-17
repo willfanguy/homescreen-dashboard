@@ -26,7 +26,7 @@ interface UseHomebridgeConfig {
   enabled?: boolean;
 }
 
-const API_BASE = 'http://localhost:3001/api/homebridge';
+const API_BASE = '/api/homebridge';
 
 export function useHomebridge(config: UseHomebridgeConfig = {}): UseHomebridgeResult {
   const { refreshInterval = 300000, enabled = true } = config; // 5 min default

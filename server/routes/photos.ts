@@ -11,12 +11,42 @@ interface ICloudPhoto {
   height: number;
 }
 
-// Fetch photos from an iCloud shared album
-async function fetchICloudAlbum(albumToken: string): Promise<ICloudPhoto[]> {
-  let baseUrl = ICLOUD_BASE;
+// In-memory cache: album token -> { photos, timestamp }
+const photoCache = new Map<string, { photos: ICloudPhoto[]; timestamp: number }>();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
-  // Step 1: Get the webstream data (may need to follow redirect via header)
-  const streamResponse = await fetch(`${baseUrl}/${albumToken}/sharedstreams/webstream`, {
+// Cache the redirect host so we don't hit the 330 endpoint every time
+let cachedRedirectHost: string | null = null;
+
+// iCloud's redirect host intermittently returns 403 on first requests.
+// Retry with backoff to handle this.
+async function iCloudPost(url: string, body: any, retries = 5): Promise<Response> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+        'Origin': 'https://www.icloud.com',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (response.ok) return response;
+
+    if (response.status !== 403 || attempt === retries) {
+      throw new Error(`iCloud API error: ${response.status} ${response.statusText} (${url})`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+  throw new Error('unreachable');
+}
+
+// Resolve the redirect host (iCloud returns custom 330 with X-Apple-MMe-Host)
+async function resolveRedirectHost(albumToken: string): Promise<string> {
+  if (cachedRedirectHost) return cachedRedirectHost;
+
+  const response = await fetch(`${ICLOUD_BASE}/${albumToken}/sharedstreams/webstream`, {
     method: 'POST',
     headers: {
       'Content-Type': 'text/plain',
@@ -25,32 +55,24 @@ async function fetchICloudAlbum(albumToken: string): Promise<ICloudPhoto[]> {
     body: JSON.stringify({ streamCtag: null }),
   });
 
-  // Check for redirect header
-  const redirectHost = streamResponse.headers.get('X-Apple-MMe-Host');
+  const redirectHost = response.headers.get('X-Apple-MMe-Host');
   if (redirectHost) {
-    baseUrl = `https://${redirectHost}`;
-    // Retry with new host
-    const retryResponse = await fetch(`${baseUrl}/${albumToken}/sharedstreams/webstream`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain',
-        'Origin': 'https://www.icloud.com',
-      },
-      body: JSON.stringify({ streamCtag: null }),
-    });
-
-    if (!retryResponse.ok) {
-      throw new Error(`Failed to fetch album stream: ${retryResponse.statusText}`);
-    }
-
-    var streamData = await retryResponse.json();
-  } else {
-    if (!streamResponse.ok) {
-      throw new Error(`Failed to fetch album stream: ${streamResponse.statusText}`);
-    }
-    var streamData = await streamResponse.json();
+    cachedRedirectHost = redirectHost;
+    return redirectHost;
   }
 
+  // No redirect -- use default host
+  return ICLOUD_BASE.replace('https://', '');
+}
+
+// Fetch photos from an iCloud shared album
+async function fetchICloudAlbum(albumToken: string): Promise<ICloudPhoto[]> {
+  const host = await resolveRedirectHost(albumToken);
+  const baseUrl = `https://${host}`;
+
+  // Step 1: Get the webstream data
+  const streamResponse = await iCloudPost(`${baseUrl}/${albumToken}/sharedstreams/webstream`, { streamCtag: null });
+  const streamData = await streamResponse.json();
   const photos = streamData.photos || [];
 
   if (photos.length === 0) {
@@ -59,20 +81,7 @@ async function fetchICloudAlbum(albumToken: string): Promise<ICloudPhoto[]> {
 
   // Step 2: Get the asset URLs
   const photoGuids = photos.map((p: any) => p.photoGuid);
-
-  const assetResponse = await fetch(`${baseUrl}/${albumToken}/sharedstreams/webasseturls`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain',
-      'Origin': 'https://www.icloud.com',
-    },
-    body: JSON.stringify({ photoGuids }),
-  });
-
-  if (!assetResponse.ok) {
-    throw new Error(`Failed to fetch asset URLs: ${assetResponse.statusText}`);
-  }
-
+  const assetResponse = await iCloudPost(`${baseUrl}/${albumToken}/sharedstreams/webasseturls`, { photoGuids });
   const assetData = await assetResponse.json();
   const items = assetData.items || {};
 
@@ -115,15 +124,25 @@ async function fetchICloudAlbum(albumToken: string): Promise<ICloudPhoto[]> {
   return result;
 }
 
-// Get photos from iCloud shared album
+// Get photos from iCloud shared album (with caching)
 photosRouter.get('/album/:albumToken', async (req, res) => {
   const { albumToken } = req.params;
+  const cached = photoCache.get(albumToken);
 
   try {
     const photos = await fetchICloudAlbum(albumToken);
+    photoCache.set(albumToken, { photos, timestamp: Date.now() });
     res.json(photos);
   } catch (error) {
     console.error('iCloud album fetch error:', error);
+
+    // Return cached photos if available (even if stale)
+    if (cached && cached.photos.length > 0) {
+      console.log(`Serving ${cached.photos.length} cached photos (from ${Math.round((Date.now() - cached.timestamp) / 60000)}m ago)`);
+      res.json(cached.photos);
+      return;
+    }
+
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Failed to fetch album',
     });

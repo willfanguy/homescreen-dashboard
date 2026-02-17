@@ -28,7 +28,7 @@ interface UseSonosConfig {
   enabled?: boolean;
 }
 
-const API_BASE = 'http://localhost:3001/api/sonos';
+const API_BASE = '/api/sonos';
 
 export function useSonos(config: UseSonosConfig = {}): UseSonosResult {
   const { refreshInterval = 10000, enabled = true } = config;
