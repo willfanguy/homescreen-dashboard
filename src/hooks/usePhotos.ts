@@ -12,7 +12,7 @@ interface UsePhotosResult {
   refetch: () => void;
 }
 
-const API_BASE = 'http://localhost:3001/api/photos';
+const API_BASE = '/api/photos';
 
 export function usePhotos(config: PhotosConfig): UsePhotosResult {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -48,10 +48,10 @@ export function usePhotos(config: PhotosConfig): UsePhotosResult {
   useEffect(() => {
     fetchPhotos();
 
-    // Refresh photos every hour
-    const interval = setInterval(fetchPhotos, 60 * 60 * 1000);
+    // Refresh every hour normally, every 30s on error
+    const interval = setInterval(fetchPhotos, error ? 30_000 : 60 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [fetchPhotos]);
+  }, [fetchPhotos, error]);
 
   return {
     photos,

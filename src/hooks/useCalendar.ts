@@ -32,7 +32,7 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
         try {
           if (source.icalUrl) {
             // Use backend proxy for iCal feeds
-            const proxyUrl = `http://localhost:3001/api/calendar/ical?url=${encodeURIComponent(source.icalUrl)}`;
+            const proxyUrl = `/api/calendar/ical?url=${encodeURIComponent(source.icalUrl)}`;
             const response = await fetch(proxyUrl);
             const icalText = await response.text();
             const parsed = parseICalEvents(icalText, source);
@@ -40,7 +40,7 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
           } else if (source.googleCalendarId) {
             // Use Google Calendar API
             const response = await fetch(
-              `http://localhost:3001/api/calendar/google/events/${encodeURIComponent(source.googleCalendarId)}`
+              `/api/calendar/google/events/${encodeURIComponent(source.googleCalendarId)}`
             );
             if (response.ok) {
               const events = await response.json();
