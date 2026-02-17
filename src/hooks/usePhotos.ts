@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Photo } from '../types/dashboard';
 
 interface PhotosConfig {
@@ -13,11 +13,15 @@ interface UsePhotosResult {
 }
 
 const API_BASE = '/api/photos';
+const REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
+const ERROR_RETRY_INTERVAL = 30_000; // 30 seconds
 
 export function usePhotos(config: PhotosConfig): UsePhotosResult {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const retryTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasLoaded = useRef(false);
 
   const fetchPhotos = useCallback(async () => {
     if (!config.albumToken) {
@@ -26,7 +30,6 @@ export function usePhotos(config: PhotosConfig): UsePhotosResult {
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const response = await fetch(`${API_BASE}/album/${config.albumToken}`);
@@ -36,10 +39,27 @@ export function usePhotos(config: PhotosConfig): UsePhotosResult {
         throw new Error(data.error || 'Failed to fetch photos');
       }
 
-      const data = await response.json();
-      setPhotos(data);
+      const data: Photo[] = await response.json();
+
+      // Only update state if photo URLs actually changed to avoid resetting
+      // the current photo index in PhotoBackground
+      setPhotos(prev => {
+        if (prev.length === data.length && prev.every((p, i) => p.url === data[i].url)) {
+          return prev;
+        }
+        return data;
+      });
+      setError(null);
+      hasLoaded.current = true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      // Only show error if we've never successfully loaded photos
+      if (!hasLoaded.current) {
+        setError(message);
+      }
+      // Schedule a retry
+      if (retryTimeout.current) clearTimeout(retryTimeout.current);
+      retryTimeout.current = setTimeout(fetchPhotos, ERROR_RETRY_INTERVAL);
     } finally {
       setLoading(false);
     }
@@ -48,10 +68,12 @@ export function usePhotos(config: PhotosConfig): UsePhotosResult {
   useEffect(() => {
     fetchPhotos();
 
-    // Refresh every hour normally, every 30s on error
-    const interval = setInterval(fetchPhotos, error ? 30_000 : 60 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [fetchPhotos, error]);
+    const interval = setInterval(fetchPhotos, REFRESH_INTERVAL);
+    return () => {
+      clearInterval(interval);
+      if (retryTimeout.current) clearTimeout(retryTimeout.current);
+    };
+  }, [fetchPhotos]);
 
   return {
     photos,
