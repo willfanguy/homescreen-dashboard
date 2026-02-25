@@ -21,7 +21,7 @@ export function useNWSAlerts(config: NWSAlertsConfig): UseNWSAlertsResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAlerts = async () => {
+    const fetchAlerts = async (signal: AbortSignal) => {
       setLoading(true);
       setError(null);
 
@@ -33,6 +33,7 @@ export function useNWSAlerts(config: NWSAlertsConfig): UseNWSAlertsResult {
               'User-Agent': 'HomeScreenDashboard/1.0',
               'Accept': 'application/geo+json',
             },
+            signal,
           }
         );
 
@@ -59,17 +60,22 @@ export function useNWSAlerts(config: NWSAlertsConfig): UseNWSAlertsResult {
 
         setAlerts(parsedAlerts);
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAlerts();
+    const controller = new AbortController();
+    fetchAlerts(controller.signal);
 
     // Refresh alerts every 5 minutes
-    const interval = setInterval(fetchAlerts, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => fetchAlerts(controller.signal), 5 * 60 * 1000);
+    return () => {
+      clearInterval(interval);
+      controller.abort();
+    };
   }, [config.lat, config.lon]);
 
   return { alerts, loading, error };

@@ -26,7 +26,7 @@ export function useAirQuality(config: AirQualityConfig): UseAirQualityResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAirQuality = async () => {
+    const fetchAirQuality = async (signal: AbortSignal) => {
       setLoading(true);
       setError(null);
 
@@ -38,7 +38,7 @@ export function useAirQuality(config: AirQualityConfig): UseAirQualityResult {
           timezone: 'auto',
         });
 
-        const response = await fetch(`${AIR_QUALITY_BASE}?${params}`);
+        const response = await fetch(`${AIR_QUALITY_BASE}?${params}`, { signal });
         if (!response.ok) {
           throw new Error('Failed to fetch air quality data');
         }
@@ -52,17 +52,22 @@ export function useAirQuality(config: AirQualityConfig): UseAirQualityResult {
           color: getAqiColor(aqi),
         });
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAirQuality();
+    const controller = new AbortController();
+    fetchAirQuality(controller.signal);
 
     // Refresh every 30 minutes
-    const interval = setInterval(fetchAirQuality, 30 * 60 * 1000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => fetchAirQuality(controller.signal), 30 * 60 * 1000);
+    return () => {
+      clearInterval(interval);
+      controller.abort();
+    };
   }, [config.lat, config.lon]);
 
   return { data, loading, error };

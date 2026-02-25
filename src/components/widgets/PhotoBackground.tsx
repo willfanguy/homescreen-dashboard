@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Photo } from '../../types/dashboard';
 
 interface PhotoBackgroundProps {
@@ -20,6 +20,7 @@ export function PhotoBackground({
 }: PhotoBackgroundProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (photos.length <= 1) return;
@@ -36,7 +37,8 @@ export function PhotoBackground({
     const interval = setInterval(() => {
       if (useTransitions) {
         setIsTransitioning(true);
-        setTimeout(() => {
+        if (transitionTimeout.current) clearTimeout(transitionTimeout.current);
+        transitionTimeout.current = setTimeout(() => {
           setCurrentIndex(prev => getRandomIndex(prev, photos.length));
           setIsTransitioning(false);
         }, 500);
@@ -45,7 +47,10 @@ export function PhotoBackground({
       }
     }, rotateInterval * 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (transitionTimeout.current) clearTimeout(transitionTimeout.current);
+    };
   }, [photos.length, rotateInterval, useTransitions]);
 
   if (photos.length === 0) {
