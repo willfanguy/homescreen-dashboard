@@ -22,7 +22,7 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWeather = async () => {
+  const fetchWeather = async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
 
@@ -41,7 +41,7 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
         forecast_days: '7',
       });
 
-      const response = await fetch(`${OPEN_METEO_BASE}?${params}`);
+      const response = await fetch(`${OPEN_METEO_BASE}?${params}`, { signal });
       if (!response.ok) {
         throw new Error('Failed to fetch weather data');
       }
@@ -76,6 +76,7 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
 
       setData(weatherData);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
@@ -83,11 +84,15 @@ export function useWeather(config: WeatherConfig): UseWeatherResult {
   };
 
   useEffect(() => {
-    fetchWeather();
+    const controller = new AbortController();
+    fetchWeather(controller.signal);
 
     // Refresh weather every 15 minutes
-    const interval = setInterval(fetchWeather, 15 * 60 * 1000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => fetchWeather(controller.signal), 15 * 60 * 1000);
+    return () => {
+      clearInterval(interval);
+      controller.abort();
+    };
   }, [config.lat, config.lon, config.units]);
 
   return { data, loading, error, refetch: fetchWeather };

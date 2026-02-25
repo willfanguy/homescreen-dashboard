@@ -128,17 +128,27 @@ async function fetchICloudAlbum(albumToken: string): Promise<ICloudPhoto[]> {
 photosRouter.get('/album/:albumToken', async (req, res) => {
   const { albumToken } = req.params;
   const cached = photoCache.get(albumToken);
+  const cacheAge = cached ? Date.now() - cached.timestamp : Infinity;
+  const isCacheValid = cacheAge < CACHE_TTL;
+
+  // Return cached photos if within TTL
+  if (isCacheValid && cached && cached.photos.length > 0) {
+    console.log(`Serving ${cached.photos.length} cached photos (age: ${Math.round(cacheAge / 60000)}m)`);
+    res.json(cached.photos);
+    return;
+  }
 
   try {
     const photos = await fetchICloudAlbum(albumToken);
     photoCache.set(albumToken, { photos, timestamp: Date.now() });
+    cachedRedirectHost = null; // Reset redirect host on successful fetch
     res.json(photos);
   } catch (error) {
     console.error('iCloud album fetch error:', error);
 
-    // Return cached photos if available (even if stale)
-    if (cached && cached.photos.length > 0) {
-      console.log(`Serving ${cached.photos.length} cached photos (from ${Math.round((Date.now() - cached.timestamp) / 60000)}m ago)`);
+    // Serve stale cache only if available and within TTL, otherwise propagate error
+    if (isCacheValid && cached && cached.photos.length > 0) {
+      console.log(`Serving stale cache after error (age: ${Math.round(cacheAge / 60000)}m)`);
       res.json(cached.photos);
       return;
     }

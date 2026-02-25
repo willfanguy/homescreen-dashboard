@@ -13,7 +13,7 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCalendars = async () => {
+  const fetchCalendars = async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
 
@@ -33,14 +33,15 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
           if (source.icalUrl) {
             // Use backend proxy for iCal feeds
             const proxyUrl = `/api/calendar/ical?url=${encodeURIComponent(source.icalUrl)}`;
-            const response = await fetch(proxyUrl);
+            const response = await fetch(proxyUrl, { signal });
             const icalText = await response.text();
             const parsed = parseICalEvents(icalText, source);
             allEvents.push(...parsed);
           } else if (source.googleCalendarId) {
             // Use Google Calendar API
             const response = await fetch(
-              `/api/calendar/google/events/${encodeURIComponent(source.googleCalendarId)}`
+              `/api/calendar/google/events/${encodeURIComponent(source.googleCalendarId)}`,
+              { signal }
             );
             if (response.ok) {
               const events = await response.json();
@@ -57,6 +58,7 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
             }
           }
         } catch (err) {
+          if (err instanceof Error && err.name === 'AbortError') throw err;
           console.error(`Failed to fetch calendar ${source.name}:`, err);
         }
       }
@@ -65,6 +67,7 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
       allEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
       setEvents(allEvents);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
@@ -72,11 +75,15 @@ export function useCalendar(sources: CalendarSource[]): UseCalendarResult {
   };
 
   useEffect(() => {
-    fetchCalendars();
+    const controller = new AbortController();
+    fetchCalendars(controller.signal);
 
     // Refresh every 5 minutes
-    const interval = setInterval(fetchCalendars, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => fetchCalendars(controller.signal), 5 * 60 * 1000);
+    return () => {
+      clearInterval(interval);
+      controller.abort();
+    };
   }, [sources]);
 
   return { events, loading, error, refetch: fetchCalendars };
