@@ -10,6 +10,20 @@ interface CalendarProps {
   excludeCalendarIds?: string[];
 }
 
+function CalendarSkeleton() {
+  return (
+    <div className="calendar-skeleton">
+      <div className="skeleton-day-header" style={{ width: '4.5rem' }} />
+      <div className="skeleton-event" style={{ width: '92%' }} />
+      <div className="skeleton-event" style={{ width: '78%' }} />
+      <div className="skeleton-day-group">
+        <div className="skeleton-day-header" style={{ width: '6.5rem' }} />
+        <div className="skeleton-event" style={{ width: '85%' }} />
+      </div>
+    </div>
+  );
+}
+
 export function Calendar({
   events,
   loading,
@@ -19,11 +33,19 @@ export function Calendar({
   excludeCalendarIds = [],
 }: CalendarProps) {
   if (loading) {
-    return <div className="calendar-widget loading">Loading calendar...</div>;
+    return (
+      <div className="calendar-widget">
+        <CalendarSkeleton />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="calendar-widget error">{error}</div>;
+    return (
+      <div className="calendar-widget">
+        <span className="calendar-unavailable">Calendar unavailable</span>
+      </div>
+    );
   }
 
   const upcomingEvents = events
@@ -80,7 +102,7 @@ export function Calendar({
   };
 
   return (
-    <div className="calendar-widget">
+    <div className="calendar-widget calendar-loaded">
       {Object.entries(groupedByDay).map(([dateKey, dayEvents]) => (
         <div key={dateKey} className="calendar-day">
           <div className="calendar-day-header">{formatDayHeader(dateKey)}</div>

@@ -1,13 +1,43 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import type { Photo } from '../../types/dashboard';
 
 interface PhotoBackgroundProps {
   photos: Photo[];
-  rotateInterval?: number; // seconds
-  brightness?: number; // 0-1
+  rotateInterval?: number;
+  brightness?: number;
   blur?: boolean;
   vignette?: boolean;
-  useTransitions?: boolean;
+}
+
+interface SlotState {
+  slotA: number;
+  slotB: number;
+  activeSlot: 'a' | 'b';
+}
+
+function PhotoLayer({ photo, opacity, blur }: { photo: Photo; opacity: number; blur: boolean }) {
+  const isPortrait = photo.height > photo.width;
+  return (
+    <div className="photo-layer" style={{ opacity }}>
+      <div
+        className="photo-background-fill"
+        style={{
+          backgroundImage: `url(${photo.url})`,
+          filter: isPortrait ? 'blur(30px)' : (blur ? 'blur(8px)' : 'none'),
+          backgroundSize: 'cover',
+          transform: isPortrait ? 'scale(1.1)' : 'none',
+        }}
+      />
+      <div
+        className="photo-background-main"
+        style={{
+          backgroundImage: `url(${photo.url})`,
+          backgroundSize: isPortrait ? 'contain' : 'cover',
+          filter: (!isPortrait && blur) ? 'blur(8px)' : 'none',
+        }}
+      />
+    </div>
+  );
 }
 
 export function PhotoBackground({
@@ -16,78 +46,49 @@ export function PhotoBackground({
   brightness = 0.3,
   blur = true,
   vignette = true,
-  useTransitions = true,
 }: PhotoBackgroundProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const transitionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [{ slotA, slotB, activeSlot }, setState] = useState<SlotState>({
+    slotA: 0,
+    slotB: 0,
+    activeSlot: 'a',
+  });
 
   useEffect(() => {
     if (photos.length <= 1) return;
 
-    const getRandomIndex = (current: number, total: number) => {
-      if (total <= 1) return 0;
-      let next;
-      do {
-        next = Math.floor(Math.random() * total);
-      } while (next === current);
-      return next;
-    };
-
     const interval = setInterval(() => {
-      if (useTransitions) {
-        setIsTransitioning(true);
-        if (transitionTimeout.current) clearTimeout(transitionTimeout.current);
-        transitionTimeout.current = setTimeout(() => {
-          setCurrentIndex(prev => getRandomIndex(prev, photos.length));
-          setIsTransitioning(false);
-        }, 500);
-      } else {
-        setCurrentIndex(prev => getRandomIndex(prev, photos.length));
-      }
+      setState(prev => {
+        const currentIndex = prev.activeSlot === 'a' ? prev.slotA : prev.slotB;
+        let nextIndex;
+        do {
+          nextIndex = Math.floor(Math.random() * photos.length);
+        } while (nextIndex === currentIndex);
+
+        if (prev.activeSlot === 'a') {
+          return { slotA: prev.slotA, slotB: nextIndex, activeSlot: 'b' };
+        } else {
+          return { slotA: nextIndex, slotB: prev.slotB, activeSlot: 'a' };
+        }
+      });
     }, rotateInterval * 1000);
 
-    return () => {
-      clearInterval(interval);
-      if (transitionTimeout.current) clearTimeout(transitionTimeout.current);
-    };
-  }, [photos.length, rotateInterval, useTransitions]);
+    return () => clearInterval(interval);
+  }, [photos.length, rotateInterval]);
 
   if (photos.length === 0) {
     return <div className="photo-background empty" />;
   }
 
-  // Ensure index is within bounds (photos array may have changed)
-  const safeIndex = currentIndex < photos.length ? currentIndex : 0;
-  const currentPhoto = photos[safeIndex];
-  const isPortrait = currentPhoto.height > currentPhoto.width;
+  const photoA = photos[Math.min(slotA, photos.length - 1)];
+  const photoB = photos[Math.min(slotB, photos.length - 1)];
 
   return (
-    <div className={`photo-background ${isTransitioning ? 'transitioning' : ''}`}>
-      {/* Blurred background fill layer */}
-      <div
-        className="photo-background-fill"
-        style={{
-          backgroundImage: `url(${currentPhoto.url})`,
-          filter: isPortrait ? 'blur(30px)' : (blur ? 'blur(8px)' : 'none'),
-          backgroundSize: 'cover',
-          transform: isPortrait ? 'scale(1.1)' : 'none',
-        }}
-      />
-      {/* Main image layer */}
-      <div
-        className="photo-background-main"
-        style={{
-          backgroundImage: `url(${currentPhoto.url})`,
-          backgroundSize: isPortrait ? 'contain' : 'cover',
-          filter: (!isPortrait && blur) ? 'blur(8px)' : 'none',
-        }}
-      />
+    <div className="photo-background">
+      <PhotoLayer photo={photoA} opacity={activeSlot === 'a' ? 1 : 0} blur={blur} />
+      <PhotoLayer photo={photoB} opacity={activeSlot === 'b' ? 1 : 0} blur={blur} />
       <div
         className="photo-overlay"
-        style={{
-          backgroundColor: `rgba(0, 0, 0, ${1 - brightness})`,
-        }}
+        style={{ backgroundColor: `rgba(0, 0, 0, ${1 - brightness})` }}
       />
       {vignette && <div className="photo-vignette" />}
     </div>

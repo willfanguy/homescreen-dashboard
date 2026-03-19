@@ -166,11 +166,12 @@
 .photo-background {
   position: absolute;
   inset: 0;
-  transition: opacity 0.5s ease-in-out;
 }
 
-.photo-background.transitioning {
-  opacity: 0;
+.photo-layer {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.5s ease-in-out;
 }
 
 .photo-background-fill,
@@ -274,6 +275,58 @@
 .calendar-empty {
   opacity: 0.5;
   font-style: italic;
+}
+
+/* Calendar unavailable (error) state */
+.calendar-unavailable {
+  font-size: 1.25rem;
+  opacity: 0.3;
+  font-style: italic;
+}
+
+/* Fade-in when calendar content loads */
+.calendar-loaded {
+  animation: calendar-fade-in 0.5s ease-out;
+}
+
+@keyframes calendar-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Calendar skeleton loading state */
+.calendar-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.skeleton-day-group {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.skeleton-day-header {
+  height: 1.875rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+  animation: skeleton-pulse 2s ease-in-out infinite;
+}
+
+.skeleton-event {
+  height: 1.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  animation: skeleton-pulse 2s ease-in-out infinite;
+  animation-delay: 0.25s;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.7; }
 }
 
 /* Weather Widget */
