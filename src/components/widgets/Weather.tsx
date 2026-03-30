@@ -1,13 +1,13 @@
-import type { WeatherData } from '../../types/dashboard';
-import type { AirQualityData } from '../../hooks/useAirQuality';
-import type { MoonPhaseData } from '../../utils/moonPhase';
-import { WeatherIcon } from './WeatherIcon';
+import type { WeatherData } from "../../types/dashboard";
+import type { AirQualityData } from "../../hooks/useAirQuality";
+import type { MoonPhaseData } from "../../utils/moonPhase";
+import { WeatherIcon } from "./WeatherIcon";
 
 interface WeatherProps {
   data: WeatherData | null;
   loading: boolean;
   error: string | null;
-  units?: 'imperial' | 'metric';
+  units?: "imperial" | "metric";
   daysToShow?: number;
   showFeelsLike?: boolean;
   showPrecipChance?: boolean;
@@ -19,7 +19,7 @@ export function Weather({
   data,
   loading,
   error,
-  units = 'imperial',
+  units = "imperial",
   daysToShow = 5,
   showFeelsLike = true,
   showPrecipChance = true,
@@ -38,7 +38,7 @@ export function Weather({
     return <div className="weather-widget">No weather data</div>;
   }
 
-  const tempUnit = units === 'imperial' ? '°F' : '°C';
+  const tempUnit = units === "imperial" ? "°F" : "°C";
 
   return (
     <div className="weather-widget">
@@ -49,20 +49,31 @@ export function Weather({
             {Math.round(data.current.temp)}{tempUnit}
           </div>
         </div>
-        {showFeelsLike && (
-          <div className="weather-feels-like">
-            Feels like {Math.round(data.current.feelsLike)}{tempUnit}
-          </div>
-        )}
         <div className="weather-condition-row">
-          {moonPhase && (
+          {showFeelsLike && (
+            <span>Feels like {Math.round(data.current.feelsLike)}{tempUnit}</span>
+          )}
+          {showFeelsLike && <span className="condition-separator">·</span>}
+          <span>{data.current.condition}</span>
+        </div>
+        {moonPhase && (
+          <div className="weather-condition-row">
             <span className="condition-item">
               <span>{moonPhase.emoji}</span>
               <span>{moonPhase.name}</span>
             </span>
-          )}
-          {moonPhase && <span className="condition-separator">·</span>}
-          <span>{data.current.condition}</span>
+          </div>
+        )}
+        <div className="weather-sun-row">
+          <span className="sun-item">
+            <span>☀↑</span>
+            <span>{formatTime(data.sunrise)}</span>
+          </span>
+          <span className="condition-separator">·</span>
+          <span className="sun-item">
+            <span>☀↓</span>
+            <span>{formatTime(data.sunset)}</span>
+          </span>
         </div>
         <div className="weather-env-row">
           <div className="env-indicator env-uv">
@@ -92,17 +103,6 @@ export function Weather({
             </div>
           )}
         </div>
-        <div className="weather-sun-row">
-          <span className="sun-item">
-            <span>☀↑</span>
-            <span>{formatTime(data.sunrise)}</span>
-          </span>
-          <span className="condition-separator">·</span>
-          <span className="sun-item">
-            <span>☀↓</span>
-            <span>{formatTime(data.sunset)}</span>
-          </span>
-        </div>
       </div>
 
       <div className="weather-forecast">
@@ -110,7 +110,7 @@ export function Weather({
           <div key={index} className="forecast-day">
             <div className="forecast-day-main">
               <div className="forecast-day-name">
-                {day.date.toLocaleDateString('en-US', { weekday: 'short' })}
+                {day.date.toLocaleDateString("en-US", { weekday: "short" })}
               </div>
               <WeatherIcon code={day.weatherCode} size={40} className="forecast-icon" />
               <div className="forecast-temps">
@@ -129,7 +129,7 @@ export function Weather({
         <div className="weather-alerts">
           {data.alerts.map((alert, index) => (
             <div key={index} className={`weather-alert ${alert.severity}`}>
-              {(alert.severity === 'severe' || alert.severity === 'extreme') && '⚠️ '}
+              {(alert.severity === "severe" || alert.severity === "extreme") && "⚠️ "}
               {alert.title}
             </div>
           ))}
@@ -140,24 +140,24 @@ export function Weather({
 }
 
 function getUvColor(uvIndex: number): string {
-  if (uvIndex < 3) return '#4caf50'; // Low - green
-  if (uvIndex < 6) return '#ffeb3b'; // Moderate - yellow
-  if (uvIndex < 8) return '#ff9800'; // High - orange
-  if (uvIndex < 11) return '#f44336'; // Very high - red
-  return '#9c27b0'; // Extreme - purple
+  if (uvIndex < 3) return "#4caf50"; // Low - green
+  if (uvIndex < 6) return "#ffeb3b"; // Moderate - yellow
+  if (uvIndex < 8) return "#ff9800"; // High - orange
+  if (uvIndex < 11) return "#f44336"; // Very high - red
+  return "#9c27b0"; // Extreme - purple
 }
 
 function getUvCategory(uvIndex: number): string {
-  if (uvIndex < 3) return 'Low';
-  if (uvIndex < 6) return 'Moderate';
-  if (uvIndex < 8) return 'High';
-  if (uvIndex < 11) return 'Very High';
-  return 'Extreme';
+  if (uvIndex < 3) return "Low";
+  if (uvIndex < 6) return "Moderate";
+  if (uvIndex < 8) return "High";
+  if (uvIndex < 11) return "Very High";
+  return "Extreme";
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
