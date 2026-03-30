@@ -29,6 +29,7 @@ export function NightMode({
   }, []);
 
   // Check if we're in night mode hours
+  // Uses sunset/sunrise from weather data when available, falls back to configured hours
   const isNightTime = useMemo(() => {
     if (!enabled) return false;
 
@@ -40,13 +41,38 @@ export function NightMode({
 
     const hour = parseInt(formatter.format(now), 10);
 
-    // Handle overnight range (e.g., 23:00 to 06:00)
-    if (startHour > endHour) {
-      return hour >= startHour || hour < endHour;
+    // Use sunset/sunrise from weather when available
+    // Skip override when in force-on mode (startHour=0, endHour=24)
+    let effectiveStartHour = startHour;
+    let effectiveEndHour = endHour;
+    const isForceOn = startHour === 0 && endHour === 24;
+
+    if (weather?.sunset && !isForceOn) {
+      const sunsetFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        hour12: false,
+      });
+      effectiveStartHour = parseInt(sunsetFormatter.format(weather.sunset), 10);
     }
-    // Handle same-day range (e.g., 01:00 to 05:00)
-    return hour >= startHour && hour < endHour;
-  }, [now, enabled, startHour, endHour, timezone]);
+
+    if (weather?.sunrise && !isForceOn) {
+      const sunriseFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        hour12: false,
+      });
+      // Sunrise hour + 1 so we don't cut off right at sunrise
+      effectiveEndHour = parseInt(sunriseFormatter.format(weather.sunrise), 10);
+    }
+
+    // Handle overnight range (e.g., 20:00 to 06:00)
+    if (effectiveStartHour > effectiveEndHour) {
+      return hour >= effectiveStartHour || hour < effectiveEndHour;
+    }
+    // Handle same-day range
+    return hour >= effectiveStartHour && hour < effectiveEndHour;
+  }, [now, enabled, startHour, endHour, timezone, weather]);
 
   // Smooth transition
   useEffect(() => {

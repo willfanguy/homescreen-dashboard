@@ -77,8 +77,8 @@ export const config: AppConfig = {
   },
 
   nightMode: {
-    startHour: 23, // 11 PM
-    endHour: 6,    // 6 AM
+    startHour: 21, // 9 PM (fallback if weather/sunset unavailable)
+    endHour: 6,    // 6 AM (fallback if weather/sunrise unavailable)
     enabled: true,
   },
 
