@@ -61,30 +61,36 @@ export function Weather({
               <span>{moonPhase.name}</span>
             </span>
           )}
-          {moonPhase && airQuality && <span className="condition-separator">·</span>}
-          {airQuality && (
-            <span className="condition-item">
-              <span
-                className="aqi-badge-small"
-                style={{ backgroundColor: airQuality.color }}
-              >
-                {airQuality.aqi}
-              </span>
-              <span>{airQuality.category}</span>
-            </span>
-          )}
-          {(moonPhase || airQuality) && <span className="condition-separator">·</span>}
-          <span className="condition-item">
+          {moonPhase && <span className="condition-separator">·</span>}
+          <span>{data.current.condition}</span>
+        </div>
+        <div className="weather-env-row">
+          <div className="env-indicator env-uv">
             <span
-              className="uv-badge-small"
+              className="env-uv-circle"
               style={{ backgroundColor: getUvColor(data.current.uvIndex) }}
             >
               {Math.round(data.current.uvIndex)}
             </span>
-            <span>UV</span>
-          </span>
-          <span className="condition-separator">·</span>
-          <span>{data.current.condition}</span>
+            <span className="env-meta">
+              <span className="env-title">UV</span>
+              <span className="env-category">{getUvCategory(data.current.uvIndex)}</span>
+            </span>
+          </div>
+          {airQuality && (
+            <div className="env-indicator env-aqi">
+              <span
+                className="env-aqi-pill"
+                style={{ backgroundColor: airQuality.color }}
+              >
+                {airQuality.aqi}
+              </span>
+              <span className="env-meta">
+                <span className="env-title">AQI</span>
+                <span className="env-category">{airQuality.category}</span>
+              </span>
+            </div>
+          )}
         </div>
         <div className="weather-sun-row">
           <span className="sun-item">
@@ -139,6 +145,14 @@ function getUvColor(uvIndex: number): string {
   if (uvIndex < 8) return '#ff9800'; // High - orange
   if (uvIndex < 11) return '#f44336'; // Very high - red
   return '#9c27b0'; // Extreme - purple
+}
+
+function getUvCategory(uvIndex: number): string {
+  if (uvIndex < 3) return 'Low';
+  if (uvIndex < 6) return 'Moderate';
+  if (uvIndex < 8) return 'High';
+  if (uvIndex < 11) return 'Very High';
+  return 'Extreme';
 }
 
 function formatTime(date: Date): string {

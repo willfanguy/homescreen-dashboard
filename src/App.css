@@ -382,16 +382,63 @@
   opacity: 0.4;
 }
 
-.aqi-badge-small,
-.uv-badge-small {
+/* Environmental indicators (UV + AQI) */
+.weather-env-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.env-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.env-uv-circle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.0625rem 0.25rem;
-  border-radius: 3px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  font-size: 1.125rem;
+  font-weight: 700;
   color: #000;
+  flex-shrink: 0;
+}
+
+.env-aqi-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.env-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.env-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.env-category {
+  font-size: 1.1rem;
 }
 
 .weather-sun-row {
