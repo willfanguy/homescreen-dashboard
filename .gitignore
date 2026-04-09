@@ -2,6 +2,9 @@
 server/*-credentials.json
 server/*-token.json
 
+# Dakboard exports (contain personal data: location, emails, iCloud tokens)
+dakboard-exports/
+
 # Environment variables (contain secrets)
 .env
 .env.local

@@ -3,7 +3,7 @@ import { Router } from 'express';
 export const sonosRouter = Router();
 
 // Sonos HTTP API base URL - can be overridden via environment variable
-const SONOS_API_URL = process.env.SONOS_API_URL || 'http://192.168.0.155:5005';
+const SONOS_API_URL = process.env.SONOS_API_URL || 'http://localhost:5005';
 
 interface SonosTrack {
   artist: string;
