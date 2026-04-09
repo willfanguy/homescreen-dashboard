@@ -2,6 +2,9 @@
 
 A Raspberry Pi kiosk dashboard displaying photos, weather, calendar events, and time on a 1920×1080 display. Built as a self-hosted replacement for DAKboard.
 
+<!-- TODO: Add screenshot — save as docs/screenshot.png -->
+<!-- ![Dashboard Screenshot](docs/screenshot.png) -->
+
 ## Features
 
 - **Google Photos** — rotating photo background from a shared album (personal Google account, OAuth)
